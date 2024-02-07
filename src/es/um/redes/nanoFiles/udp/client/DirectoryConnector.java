@@ -6,6 +6,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketTimeoutException;
+import java.util.Arrays;
 
 import es.um.redes.nanoFiles.udp.message.DirMessage;
 import es.um.redes.nanoFiles.udp.message.DirMessageOps;
@@ -118,7 +119,6 @@ public class DirectoryConnector {
 			e.printStackTrace();
 		}
 		// asignamos a response la longitud rellenada
-		System.out.println("Contenido del response: "+responseData.toString());
 		String messageFromServer = new String(responseData, 0, packetFromServer.getLength());
 		response=messageFromServer.getBytes();
 		/*
@@ -161,8 +161,8 @@ public class DirectoryConnector {
 		 */
 		byte[] response = sendAndReceiveDatagrams("login".getBytes());
 		boolean success = false;
-		String responseString = response.toString();
-		if (responseString == "loginok") {
+		byte [] responseRequired="loginok".getBytes();
+		if (Arrays.equals(response, responseRequired)) {
 			success = true;
 		}
 		return success;
