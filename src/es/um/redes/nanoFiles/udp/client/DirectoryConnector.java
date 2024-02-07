@@ -54,14 +54,14 @@ public class DirectoryConnector {
 
 	public DirectoryConnector(String address) throws IOException {
 		/*
-		 * TODO: Convertir el nombre de host 'address' a InetAddress y guardar la
+		 *  Convertir el nombre de host 'address' a InetAddress y guardar la
 		 * dirección de socket (address:DIRECTORY_PORT) del directorio en el atributo
 		 * directoryAddress, para poder enviar datagramas a dicho destino.
 		 */
 		InetAddress serverIp = InetAddress.getByName(address);
 		this.directoryAddress = new InetSocketAddress(serverIp, DIRECTORY_PORT);
 		/*
-		 * TODO: Crea el socket UDP en cualquier puerto para enviar datagramas al
+		 *  Crea el socket UDP en cualquier puerto para enviar datagramas al
 		 * directorio
 		 */
 		this.socket = new DatagramSocket();
@@ -91,7 +91,7 @@ public class DirectoryConnector {
 			System.exit(-1);
 		}
 		/*
-		 * TODO: Enviar datos en un datagrama al directorio y recibir una respuesta. El
+		 *  Enviar datos en un datagrama al directorio y recibir una respuesta. El
 		 * array devuelto debe contener únicamente los datos recibidos, *NO* el búfer de
 		 * recepción al completo.
 		 */
@@ -108,13 +108,18 @@ public class DirectoryConnector {
 		/******** RECEIVE FROM SERVER **********/
 		// Creamos un datagrama asociado al búfer de recepción
 		DatagramPacket packetFromServer = new DatagramPacket(responseData, responseData.length);
+		int attempts=0;
+		boolean received=false;
+		while(attempts<MAX_NUMBER_OF_ATTEMPTS && received==false)
 		try {
 			// Establecemos un temporizador de 1 segundo para evitar que receive se
 			// bloquee indefinidamente (en caso de que el servidor no responda)
 			socket.setSoTimeout(TIMEOUT);
 			// Tratamos de recibir la respuesta
 			socket.receive(packetFromServer);
+			received=true;
 		} catch (IOException e) {
+			attempts++;
 			System.err.println("Error al recibir la respuesta del servidor.");
 			e.printStackTrace();
 		}
@@ -122,14 +127,14 @@ public class DirectoryConnector {
 		String messageFromServer = new String(responseData, 0, packetFromServer.getLength());
 		response=messageFromServer.getBytes();
 		/*
-		 * /* TODO: Una vez el envío y recepción asumiendo un canal confiable (sin
+		 * /* TODO:  Una vez el envío y recepción asumiendo un canal confiable (sin
 		 * pérdidas) esté terminado y probado, debe implementarse un mecanismo de
 		 * retransmisión usando temporizador, en caso de que no se reciba respuesta en
 		 * el plazo de TIMEOUT. En caso de salte el timeout, se debe reintentar como
 		 * máximo en MAX_NUMBER_OF_ATTEMPTS ocasiones.
 		 */
 		/*
-		 * TODO: Las excepciones que puedan lanzarse al leer/escribir en el socket deben
+		 *  Las excepciones que puedan lanzarse al leer/escribir en el socket deben
 		 * ser capturadas y tratadas en este método. Si se produce una excepción de
 		 * entrada/salida (error del que no es posible recuperarse), se debe informar y
 		 * terminar el programa.
@@ -154,7 +159,7 @@ public class DirectoryConnector {
 	 */
 	public boolean testSendAndReceive() {
 		/*
-		 * TODO: Probar el correcto funcionamiento de sendAndReceiveDatagrams. Se debe
+		 *  Probar el correcto funcionamiento de sendAndReceiveDatagrams. Se debe
 		 * enviar un datagrama con la cadena "login" y comprobar que la respuesta
 		 * recibida es "loginok". En tal caso, devuelve verdadero, falso si la respuesta
 		 * no contiene los datos esperados.

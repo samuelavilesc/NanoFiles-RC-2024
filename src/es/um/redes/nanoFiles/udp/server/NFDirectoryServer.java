@@ -5,6 +5,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Random;
@@ -84,7 +85,7 @@ public class NFDirectoryServer {
 		InetSocketAddress clientAddr = null;
 		int dataLength = -1;
 		/*
-		 * TODO: (Boletín UDP) Crear un búfer para recibir datagramas y un datagrama
+		 * Crear un búfer para recibir datagramas y un datagrama
 		 * asociado al búfer
 		 */
 
@@ -95,12 +96,12 @@ public class NFDirectoryServer {
 
 		while (true) { // Bucle principal del servidor de directorio
 
-			// TODO: (Boletín UDP) Recibimos a través del socket un datagrama
+			//  Recibimos a través del socket un datagrama
 			this.socket.receive(packetFromClient);
-			// TODO: (Boletín UDP) Establecemos dataLength con longitud del datagrama
+			//  Establecemos dataLength con longitud del datagrama
 			// recibido
 			dataLength = packetFromClient.getLength();
-			// TODO: (Boletín UDP) Establecemos 'clientAddr' con la dirección del cliente,
+			//  Establecemos 'clientAddr' con la dirección del cliente,
 			// obtenida del
 			// datagrama recibido
 			clientAddr = (InetSocketAddress) packetFromClient.getSocketAddress();
@@ -118,19 +119,26 @@ public class NFDirectoryServer {
 			if (dataLength > 0) {
 				String messageFromClient = new String(receptionBuffer, 0, packetFromClient.getLength());
 				/*
-				 * TODO: (Boletín UDP) Construir una cadena a partir de los datos recibidos en
+				 * Construir una cadena a partir de los datos recibidos en
 				 * el buffer de recepción
 				 */
 
 				if (NanoFiles.testMode) { // En modo de prueba (mensajes en "crudo", boletín UDP)
 					System.out.println("[testMode] Contents interpreted as " + dataLength + "-byte String: \""
 							+ messageFromClient + "\"");
-					byte[] responseBufferToClient = "loginok".getBytes();
-					DatagramPacket packetToClient = new DatagramPacket(responseBufferToClient,
-							responseBufferToClient.length,clientAddr);
-					socket.send(packetToClient);
+					//comprobando que la palabra introducida es login
+					if(messageFromClient.equals("login")) {
+						byte[] responseBufferToClient = "loginok".getBytes();
+						DatagramPacket packetToClient = new DatagramPacket(responseBufferToClient,
+								responseBufferToClient.length,clientAddr);
+						socket.send(packetToClient);
+					} else {
+						System.err.println("Directory received a wrong datagram, it should contain 'login'");
+						System.exit(1);
+					}
+					
 					/*
-					 * TODO: (Boletín UDP) Comprobar que se ha recibido un datagrama con la cadena
+					 *  Comprobar que se ha recibido un datagrama con la cadena
 					 * "login" y en ese caso enviar como respuesta un mensaje al cliente con la
 					 * cadena "loginok". Si el mensaje recibido no es "login", se informa del error
 					 * y no se envía ninguna respuesta.
