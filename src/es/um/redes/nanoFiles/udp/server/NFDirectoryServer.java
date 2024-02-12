@@ -152,13 +152,15 @@ public class NFDirectoryServer {
 						System.err.println("Directory DISCARDED datagram from " + clientAddr);
 						continue;
 					}
-
+					System.out.println(messageFromClient);
 					/*
 					 * TODO: Construir String partir de los datos recibidos en el datagrama. A
 					 * continuación, imprimir por pantalla dicha cadena a modo de depuración.
 					 * Después, usar la cadena para construir un objeto DirMessage que contenga en
 					 * sus atributos los valores del mensaje (fromString).
 					 */
+					DirMessage dirMessageFromClient = DirMessage.fromString(messageFromClient);
+					DirMessage responseToClient = buildResponseFromRequest(dirMessageFromClient, clientAddr);
 					/*
 					 * TODO: Llamar a buildResponseFromRequest para construir, a partir del objeto
 					 * DirMessage con los valores del mensaje de petición recibido, un nuevo objeto
@@ -166,6 +168,10 @@ public class NFDirectoryServer {
 					 * DirMessage de respuesta deben haber sido establecidos con los valores
 					 * adecuados para los diferentes campos del mensaje (operation, etc.)
 					 */
+					String responseToSend = responseToClient.toString();
+					DatagramPacket packetToClient = new DatagramPacket(responseToSend.getBytes(),
+							responseToSend.getBytes().length,clientAddr);
+					socket.send(packetToClient);
 					/*
 					 * TODO: Convertir en string el objeto DirMessage con el mensaje de respuesta a
 					 * enviar, extraer los bytes en que se codifica el string (getBytes), y
@@ -194,13 +200,26 @@ public class NFDirectoryServer {
 		switch (operation) {
 		case DirMessageOps.OPERATION_LOGIN: {
 			String username = msg.getNickname();
-
+			int key=0;
+			if(this.nicks.keySet().contains(username)) {
+				key=this.nicks.get(username);
+			}else {
+				key=random.nextInt(10000);
+				this.nicks.put(username, key);
+			}
 			/*
 			 * TODO: Comprobamos si tenemos dicho usuario registrado (atributo "nicks"). Si
 			 * no está, generamos su sessionKey (número aleatorio entre 0 y 1000) y añadimos
 			 * el nick y su sessionKey asociada. NOTA: Puedes usar random.nextInt(10000)
 			 * para generar la session key
 			 */
+			if(key!=0) {
+			response= new DirMessage("loginok&"+key);
+			System.out.println("Usuario: "+username+" se ha conectado correctamente.");
+			}else {
+				response= new DirMessage("loginfailed");
+				System.out.println("Intento de login fallido usuario: "+username);
+			}
 			/*
 			 * TODO: Construimos un mensaje de respuesta que indique el éxito/fracaso del
 			 * login y contenga la sessionKey en caso de éxito, y lo devolvemos como

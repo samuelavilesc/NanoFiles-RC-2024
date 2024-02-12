@@ -52,7 +52,12 @@ public class NFControllerLogicDir {
 	 * @throws IOException
 	 */
 	protected boolean doLogin(String directoryHostname, String nickname) {
-
+		try {
+			this.directoryConnector= new DirectoryConnector(directoryHostname);
+		} catch (IOException e) {
+			System.err.println("Fallo al establecer comunicación con el servidor.");
+			e.printStackTrace();
+		}
 		/*
 		 * TODO: Debe crear un objeto DirectoryConnector a partir del parámetro
 		 * directoryHostname y guardarlo en el atributo correspondiente para que pueda
@@ -61,7 +66,8 @@ public class NFControllerLogicDir {
 		 * "login", informar por pantalla del éxito/fracaso e imprimir la clave de
 		 * sesión asignada por el directorio. Devolver éxito/fracaso de la operación.
 		 */
-		boolean result = false;
+	
+		boolean result = this.directoryConnector.logIntoDirectory(nickname);
 
 
 

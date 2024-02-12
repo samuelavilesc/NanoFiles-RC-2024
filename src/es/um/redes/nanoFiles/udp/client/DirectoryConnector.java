@@ -54,15 +54,14 @@ public class DirectoryConnector {
 
 	public DirectoryConnector(String address) throws IOException {
 		/*
-		 *  Convertir el nombre de host 'address' a InetAddress y guardar la
-		 * dirección de socket (address:DIRECTORY_PORT) del directorio en el atributo
+		 * Convertir el nombre de host 'address' a InetAddress y guardar la dirección de
+		 * socket (address:DIRECTORY_PORT) del directorio en el atributo
 		 * directoryAddress, para poder enviar datagramas a dicho destino.
 		 */
 		InetAddress serverIp = InetAddress.getByName(address);
 		this.directoryAddress = new InetSocketAddress(serverIp, DIRECTORY_PORT);
 		/*
-		 *  Crea el socket UDP en cualquier puerto para enviar datagramas al
-		 * directorio
+		 * Crea el socket UDP en cualquier puerto para enviar datagramas al directorio
 		 */
 		this.socket = new DatagramSocket();
 
@@ -91,51 +90,54 @@ public class DirectoryConnector {
 			System.exit(-1);
 		}
 		/*
-		 *  Enviar datos en un datagrama al directorio y recibir una respuesta. El
-		 * array devuelto debe contener únicamente los datos recibidos, *NO* el búfer de
+		 * Enviar datos en un datagrama al directorio y recibir una respuesta. El array
+		 * devuelto debe contener únicamente los datos recibidos, *NO* el búfer de
 		 * recepción al completo.
 		 */
 		// creamos el paquete a enviar
 		DatagramPacket packetToServer = new DatagramPacket(requestData, requestData.length, this.directoryAddress);
 		// enviamos al servidor
-		try {
+		/*try {
 			this.socket.send(packetToServer);
 
 		} catch (IOException e) {
 			System.err.println("Error al enviar el paquete al directorio.");
 			e.printStackTrace();
 		}
+		*/
 		/******** RECEIVE FROM SERVER **********/
 		// Creamos un datagrama asociado al búfer de recepción
 		DatagramPacket packetFromServer = new DatagramPacket(responseData, responseData.length);
-		int attempts=0;
-		boolean received=false;
-		while(attempts<MAX_NUMBER_OF_ATTEMPTS && received==false)
-		try {
-			// Establecemos un temporizador de 1 segundo para evitar que receive se
-			// bloquee indefinidamente (en caso de que el servidor no responda)
-			socket.setSoTimeout(TIMEOUT);
-			// Tratamos de recibir la respuesta
-			socket.receive(packetFromServer);
-			received=true;
-		} catch (IOException e) {
-			attempts++;
-			System.err.println("Error al recibir la respuesta del servidor.");
-			e.printStackTrace();
+		int attempts = 0;
+		boolean received = false;
+		while (attempts < MAX_NUMBER_OF_ATTEMPTS && received == false) {
+			try {
+				socket.send(packetToServer);
+				// Establecemos un temporizador de 1 segundo para evitar que receive se
+				// bloquee indefinidamente (en caso de que el servidor no responda)
+				socket.setSoTimeout(TIMEOUT);
+				// Tratamos de recibir la respuesta
+				socket.receive(packetFromServer);
+				received = true;
+			} catch (IOException e) {
+				attempts++;
+				System.err.println("Error al recibir la respuesta del servidor.");
+				e.printStackTrace();
+			}
 		}
 		// asignamos a response la longitud rellenada
 		String messageFromServer = new String(responseData, 0, packetFromServer.getLength());
-		response=messageFromServer.getBytes();
+		response = messageFromServer.getBytes();
 		/*
-		 * /* TODO:  Una vez el envío y recepción asumiendo un canal confiable (sin
-		 * pérdidas) esté terminado y probado, debe implementarse un mecanismo de
-		 * retransmisión usando temporizador, en caso de que no se reciba respuesta en
-		 * el plazo de TIMEOUT. En caso de salte el timeout, se debe reintentar como
-		 * máximo en MAX_NUMBER_OF_ATTEMPTS ocasiones.
+		 * /* Una vez el envío y recepción asumiendo un canal confiable (sin pérdidas)
+		 * esté terminado y probado, debe implementarse un mecanismo de retransmisión
+		 * usando temporizador, en caso de que no se reciba respuesta en el plazo de
+		 * TIMEOUT. En caso de salte el timeout, se debe reintentar como máximo en
+		 * MAX_NUMBER_OF_ATTEMPTS ocasiones.
 		 */
 		/*
-		 *  Las excepciones que puedan lanzarse al leer/escribir en el socket deben
-		 * ser capturadas y tratadas en este método. Si se produce una excepción de
+		 * Las excepciones que puedan lanzarse al leer/escribir en el socket deben ser
+		 * capturadas y tratadas en este método. Si se produce una excepción de
 		 * entrada/salida (error del que no es posible recuperarse), se debe informar y
 		 * terminar el programa.
 		 */
@@ -159,14 +161,14 @@ public class DirectoryConnector {
 	 */
 	public boolean testSendAndReceive() {
 		/*
-		 *  Probar el correcto funcionamiento de sendAndReceiveDatagrams. Se debe
-		 * enviar un datagrama con la cadena "login" y comprobar que la respuesta
-		 * recibida es "loginok". En tal caso, devuelve verdadero, falso si la respuesta
-		 * no contiene los datos esperados.
+		 * Probar el correcto funcionamiento de sendAndReceiveDatagrams. Se debe enviar
+		 * un datagrama con la cadena "login" y comprobar que la respuesta recibida es
+		 * "loginok". En tal caso, devuelve verdadero, falso si la respuesta no contiene
+		 * los datos esperados.
 		 */
 		byte[] response = sendAndReceiveDatagrams("login".getBytes());
 		boolean success = false;
-		byte [] responseRequired="loginok".getBytes();
+		byte[] responseRequired = "loginok".getBytes();
 		if (Arrays.equals(response, responseRequired)) {
 			success = true;
 		}
@@ -192,15 +194,26 @@ public class DirectoryConnector {
 	public boolean logIntoDirectory(String nickname) {
 		assert (sessionKey == INVALID_SESSION_KEY);
 		boolean success = false;
+		DirMessage messageToServer = new DirMessage(DirMessageOps.OPERATION_LOGIN+"&"+nickname);
 		// TODO: 1.Crear el mensaje a enviar (objeto DirMessage) con atributos adecuados
 		// (operation, etc.) NOTA: Usar como operaciones las constantes definidas en la
 		// clase
 		// DirMessageOps
+		byte[] dataToServer = new byte[DirMessage.PACKET_MAX_SIZE];
+		dataToServer=messageToServer.toString().getBytes();
 		// TODO: 2.Convertir el objeto DirMessage a enviar a un string (método toString)
 		// TODO: 3.Crear un datagrama con los bytes en que se codifica la cadena
+		byte[] dataFromServer = sendAndReceiveDatagrams(dataToServer);
 		// TODO: 4.Enviar datagrama y recibir una respuesta (sendAndReceiveDatagrams).
+		String messageFromServer = new String(dataFromServer, 0, dataFromServer.length);
+		DirMessage responseFromServer= DirMessage.fromString(messageFromServer);
 		// TODO: 5.Convertir respuesta recibida en un objeto DirMessage (método
 		// DirMessage.fromString)
+		if(responseFromServer.toString().split("&")[0]=="loginok") {
+			int key=Integer.parseInt(responseFromServer.toString().split("&")[1]);
+			sessionKey=key;
+			success=true;
+		}
 		// TODO: 6.Extraer datos del objeto DirMessage y procesarlos (p.ej., sessionKey)
 		// TODO: 7.Devolver éxito/fracaso de la operación
 
