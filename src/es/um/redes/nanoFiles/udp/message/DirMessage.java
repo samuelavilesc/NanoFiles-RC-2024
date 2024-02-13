@@ -111,10 +111,16 @@ public class DirMessage {
 			switch (fieldName) {
 			case FIELDNAME_OPERATION: {
 				assert (m == null);
+				//si contiene "&" entonces separamos el mensaje en campos
+				if(value.contains("&")) {
 				String[] valueSplitted=value.split("&");
 				m = new DirMessage(valueSplitted[0]);
 				m.setNickname(valueSplitted[1]);
 				break;
+				}else {
+					m= new DirMessage(value);
+					break;
+				}
 			}
 
 

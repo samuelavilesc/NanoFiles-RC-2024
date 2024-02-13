@@ -8,6 +8,8 @@ public class DirMessageOps {
 	 */
 	public static final String OPERATION_INVALID = "invalid_operation";
 	public static final String OPERATION_LOGIN = "login";
+	public static final String CODE_LOGINOK = "loginok";
+	public static final String CODE_LOGINFAILED = "login_failed:-1";
 
 
 

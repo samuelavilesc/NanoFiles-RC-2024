@@ -201,8 +201,12 @@ public class NFDirectoryServer {
 		case DirMessageOps.OPERATION_LOGIN: {
 			String username = msg.getNickname();
 			int key=0;
+			//si ya se encuentra en el keySet de nicks devolver loginfailed
 			if(this.nicks.keySet().contains(username)) {
-				key=this.nicks.get(username);
+				response= new DirMessage(DirMessageOps.CODE_LOGINFAILED);
+				System.err.println("Intento de login fallido usuario: "+username);
+				break;
+			
 			}else {
 				key=random.nextInt(10000);
 				this.nicks.put(username, key);
@@ -213,13 +217,9 @@ public class NFDirectoryServer {
 			 * el nick y su sessionKey asociada. NOTA: Puedes usar random.nextInt(10000)
 			 * para generar la session key
 			 */
-			if(key!=0) {
-			response= new DirMessage("loginok&"+key);
+			response= new DirMessage(DirMessageOps.CODE_LOGINOK+"&"+key);
 			System.out.println("El usuario "+username+" se ha conectado correctamente.");
-			}else {
-				response= new DirMessage("loginfailed");
-				System.out.println("Intento de login fallido usuario: "+username);
-			}
+				
 			/*
 			 * TODO: Construimos un mensaje de respuesta que indique el éxito/fracaso del
 			 * login y contenga la sessionKey en caso de éxito, y lo devolvemos como
