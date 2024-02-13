@@ -111,7 +111,9 @@ public class DirMessage {
 			switch (fieldName) {
 			case FIELDNAME_OPERATION: {
 				assert (m == null);
-				m = new DirMessage(value);
+				String[] valueSplitted=value.split("&");
+				m = new DirMessage(valueSplitted[0]);
+				m.setNickname(valueSplitted[1]);
 				break;
 			}
 

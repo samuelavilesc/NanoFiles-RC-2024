@@ -121,12 +121,21 @@ public class DirectoryConnector {
 				received = true;
 			} catch (IOException e) {
 				attempts++;
-				System.err.println("Error al recibir la respuesta del servidor.");
-				e.printStackTrace();
+				if(attempts==MAX_NUMBER_OF_ATTEMPTS) {
+					System.err.println("Error al recibir la respuesta del servidor.");
+					e.printStackTrace();
+						
+				}
 			}
 		}
 		// asignamos a response la longitud rellenada
 		String messageFromServer = new String(responseData, 0, packetFromServer.getLength());
+		if(messageFromServer.contains("loginok")) {
+			System.out.println("Sesión iniciada correctamente.");
+			System.out.println("Id de sesion: "+messageFromServer.split("&")[1]);
+		}else {
+			System.err.println("Inicio de sesión fallido.");
+		}
 		response = messageFromServer.getBytes();
 		/*
 		 * /* Una vez el envío y recepción asumiendo un canal confiable (sin pérdidas)

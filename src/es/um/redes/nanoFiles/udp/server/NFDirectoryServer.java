@@ -215,7 +215,7 @@ public class NFDirectoryServer {
 			 */
 			if(key!=0) {
 			response= new DirMessage("loginok&"+key);
-			System.out.println("Usuario: "+username+" se ha conectado correctamente.");
+			System.out.println("El usuario "+username+" se ha conectado correctamente.");
 			}else {
 				response= new DirMessage("loginfailed");
 				System.out.println("Intento de login fallido usuario: "+username);
