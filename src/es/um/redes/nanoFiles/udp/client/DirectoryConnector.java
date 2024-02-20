@@ -97,14 +97,7 @@ public class DirectoryConnector {
 		// creamos el paquete a enviar
 		DatagramPacket packetToServer = new DatagramPacket(requestData, requestData.length, this.directoryAddress);
 		// enviamos al servidor
-		/*try {
-			this.socket.send(packetToServer);
 
-		} catch (IOException e) {
-			System.err.println("Error al enviar el paquete al directorio.");
-			e.printStackTrace();
-		}
-		*/
 		/******** RECEIVE FROM SERVER **********/
 		// Creamos un datagrama asociado al búfer de recepción
 		DatagramPacket packetFromServer = new DatagramPacket(responseData, responseData.length);
@@ -129,14 +122,8 @@ public class DirectoryConnector {
 			}
 		}
 		// asignamos a response la longitud rellenada
-		String messageFromServer = new String(responseData, 0, packetFromServer.getLength());
-		if(messageFromServer.contains("loginok")) {
-			System.out.println("Sesión iniciada correctamente.");
-			System.out.println("Id de sesion: "+messageFromServer.split("&")[1]);
-		}else {
-			System.err.println("Inicio de sesión fallido.");
-		}
-		response = messageFromServer.getBytes();
+		String stringFromServer = new String(responseData, 0, packetFromServer.getLength());
+		response = stringFromServer.getBytes();
 		/*
 		 * /* Una vez el envío y recepción asumiendo un canal confiable (sin pérdidas)
 		 * esté terminado y probado, debe implementarse un mecanismo de retransmisión
@@ -203,7 +190,7 @@ public class DirectoryConnector {
 	public boolean logIntoDirectory(String nickname) {
 		assert (sessionKey == INVALID_SESSION_KEY);
 		boolean success = false;
-		DirMessage messageToServer = new DirMessage(DirMessageOps.OPERATION_LOGIN+"&"+nickname);
+		DirMessage messageToServer = new DirMessage(DirMessageOps.OPERATION_LOGIN,nickname);
 		// TODO: 1.Crear el mensaje a enviar (objeto DirMessage) con atributos adecuados
 		// (operation, etc.) NOTA: Usar como operaciones las constantes definidas en la
 		// clase
@@ -218,10 +205,14 @@ public class DirectoryConnector {
 		DirMessage responseFromServer= DirMessage.fromString(messageFromServer);
 		// TODO: 5.Convertir respuesta recibida en un objeto DirMessage (método
 		// DirMessage.fromString)
-		if(responseFromServer.toString().split("&")[0]=="loginok") {
-			int key=Integer.parseInt(responseFromServer.toString().split("&")[1]);
+		if(responseFromServer.getOperation().equals(DirMessageOps.CODE_LOGINOK)) {
+			int key=responseFromServer.getSession_key();
 			sessionKey=key;
 			success=true;
+			System.out.println("Bienvenido, "+nickname);
+			System.out.println("Id de sesión: "+responseFromServer.getSession_key());
+		}else {
+			System.err.println("Inicio de sesión fallido.");
 		}
 		// TODO: 6.Extraer datos del objeto DirMessage y procesarlos (p.ej., sessionKey)
 		// TODO: 7.Devolver éxito/fracaso de la operación

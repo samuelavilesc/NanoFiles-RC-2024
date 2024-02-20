@@ -217,7 +217,8 @@ public class NFDirectoryServer {
 			 * el nick y su sessionKey asociada. NOTA: Puedes usar random.nextInt(10000)
 			 * para generar la session key
 			 */
-			response= new DirMessage(DirMessageOps.CODE_LOGINOK+"&"+key);
+			response= new DirMessage(DirMessageOps.CODE_LOGINOK,username);
+			response.setSession_key(key);
 			System.out.println("El usuario "+username+" se ha conectado correctamente.");
 				
 			/*
