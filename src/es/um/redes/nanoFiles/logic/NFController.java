@@ -21,9 +21,6 @@ public class NFController {
 	 * cliente de directorio.
 	 */
 
-
-
-
 	/**
 	 * Shell para leer comandos de usuario de la entrada estándar
 	 */
@@ -238,8 +235,6 @@ public class NFController {
 			}
 			break;
 
-
-
 		default:
 			// System.err.println("ERROR: undefined behaviour for " + currentCommand + "
 			// command!");
@@ -261,8 +256,10 @@ public class NFController {
 			currentState = LOGGED_IN;
 			break;
 		}
-
-
+		case NFCommands.COM_LOGOUT: {
+			currentState = LOGGED_OUT;
+			break;
+		}
 
 		default:
 		}

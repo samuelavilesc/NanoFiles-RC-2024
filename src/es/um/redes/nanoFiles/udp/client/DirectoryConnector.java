@@ -38,7 +38,7 @@ public class DirectoryConnector {
 	 * loguearse
 	 */
 	public static final int INVALID_SESSION_KEY = -1;
-
+	
 	/**
 	 * Socket UDP usado para la comunicación con el directorio
 	 */
@@ -46,6 +46,7 @@ public class DirectoryConnector {
 	/**
 	 * Dirección de socket del directorio (IP:puertoUDP)
 	 */
+	private static final String DELIMITER="&";
 	private InetSocketAddress directoryAddress;
 
 	private int sessionKey = INVALID_SESSION_KEY;
@@ -179,6 +180,7 @@ public class DirectoryConnector {
 		return sessionKey;
 	}
 
+
 	/**
 	 * Método para "iniciar sesión" en el directorio, comprobar que está operativo y
 	 * obtener la clave de sesión asociada a este usuario.
@@ -209,17 +211,12 @@ public class DirectoryConnector {
 			int key=responseFromServer.getSession_key();
 			sessionKey=key;
 			success=true;
-			System.out.println("Bienvenido, "+nickname);
-			System.out.println("Id de sesión: "+responseFromServer.getSession_key());
-		}else {
-			System.err.println("Inicio de sesión fallido.");
 		}
 		// TODO: 6.Extraer datos del objeto DirMessage y procesarlos (p.ej., sessionKey)
 		// TODO: 7.Devolver éxito/fracaso de la operación
-
+		
 		return success;
 	}
-
 	/**
 	 * Método para obtener la lista de "nicknames" registrados en el directorio.
 	 * Opcionalmente, la respuesta puede indicar para cada nickname si dicho peer
@@ -231,7 +228,27 @@ public class DirectoryConnector {
 	public String[] getUserList() {
 		String[] userlist = null;
 		// TODO: Ver TODOs en logIntoDirectory y seguir esquema similar
-
+		DirMessage messageToServer = new DirMessage(DirMessageOps.OPERATION_USERLIST);
+		// TODO: 1.Crear el mensaje a enviar (objeto DirMessage) con atributos adecuados
+		// (operation, etc.) NOTA: Usar como operaciones las constantes definidas en la
+		// clase
+		// DirMessageOps
+		byte[] dataToServer = new byte[DirMessage.PACKET_MAX_SIZE];
+		dataToServer=messageToServer.toString().getBytes();
+		// TODO: 2.Convertir el objeto DirMessage a enviar a un string (método toString)
+		// TODO: 3.Crear un datagrama con los bytes en que se codifica la cadena
+		byte[] dataFromServer = sendAndReceiveDatagrams(dataToServer);
+		// TODO: 4.Enviar datagrama y recibir una respuesta (sendAndReceiveDatagrams).
+		String messageFromServer = new String(dataFromServer, 0, dataFromServer.length);
+		DirMessage responseFromServer= DirMessage.fromString(messageFromServer);
+		// TODO: 5.Convertir respuesta recibida en un objeto DirMessage (método
+		// DirMessage.fromString)
+		if(responseFromServer.getOperation().equals(DirMessageOps.OPERATION_USERLIST)) {
+			userlist=responseFromServer.getNickname().split(DELIMITER);
+		}
+		// TODO: 6.Extraer datos del objeto DirMessage y procesarlos (p.ej., sessionKey)
+		// TODO: 7.Devolver éxito/fracaso de la operación
+		
 		return userlist;
 	}
 
@@ -242,8 +259,31 @@ public class DirectoryConnector {
 	 */
 	public boolean logoutFromDirectory() {
 		// TODO: Ver TODOs en logIntoDirectory y seguir esquema similar
+		boolean success = false;
+		DirMessage messageToServer = new DirMessage(DirMessageOps.OPERATION_LOGOUT,this.sessionKey);
+		// TODO: 1.Crear el mensaje a enviar (objeto DirMessage) con atributos adecuados
+		// (operation, etc.) NOTA: Usar como operaciones las constantes definidas en la
+		// clase
+		// DirMessageOps
+		byte[] dataToServer = new byte[DirMessage.PACKET_MAX_SIZE];
+		dataToServer=messageToServer.toString().getBytes();
+		// TODO: 2.Convertir el objeto DirMessage a enviar a un string (método toString)
+		// TODO: 3.Crear un datagrama con los bytes en que se codifica la cadena
+		byte[] dataFromServer = sendAndReceiveDatagrams(dataToServer);
+		// TODO: 4.Enviar datagrama y recibir una respuesta (sendAndReceiveDatagrams).
+		String messageFromServer = new String(dataFromServer, 0, dataFromServer.length);
+		DirMessage responseFromServer= DirMessage.fromString(messageFromServer);
+		// TODO: 5.Convertir respuesta recibida en un objeto DirMessage (método
+		// DirMessage.fromString)
+		if(responseFromServer.getOperation().equals(DirMessageOps.CODE_LOGOUTOK)) {
+			success=true;
+		}else {
+			System.err.println("Logout fallido.");
+		}
+		// TODO: 6.Extraer datos del objeto DirMessage y procesarlos (p.ej., sessionKey)
+		// TODO: 7.Devolver éxito/fracaso de la operación
 
-		return false;
+		return success;
 	}
 
 	/**

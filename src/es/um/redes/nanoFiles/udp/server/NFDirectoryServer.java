@@ -41,7 +41,7 @@ public class NFDirectoryServer {
 	 * funcionalidad del sistema nanoFilesP2P: ficheros publicados, servidores
 	 * registrados, etc.
 	 */
-
+	private static final String DELIMITER="&"; 
 	/**
 	 * Generador de claves de sesión aleatorias (sessionKeys)
 	 */
@@ -210,6 +210,7 @@ public class NFDirectoryServer {
 			}else {
 				key=random.nextInt(10000);
 				this.nicks.put(username, key);
+				this.sessionKeys.put(key, username);
 			}
 			/*
 			 * TODO: Comprobamos si tenemos dicho usuario registrado (atributo "nicks"). Si
@@ -233,6 +234,34 @@ public class NFDirectoryServer {
 			 */
 
 			break;
+		}
+		case DirMessageOps.OPERATION_LOGOUT:{
+			String username=null;
+			//si ya se encuentra en el keySet de nicks devolver loginfailed
+			if(this.sessionKeys.containsKey(msg.getSession_key())) {
+				response= new DirMessage(DirMessageOps.CODE_LOGOUTOK);
+				username=this.sessionKeys.get(msg.getSession_key());
+				this.nicks.remove(username);
+				this.sessionKeys.remove(msg.getSession_key());
+			}else {
+				response= new DirMessage(DirMessageOps.CODE_LOGOUTFAILED,username);
+				
+			}
+			break;
+			
+		}
+		case DirMessageOps.OPERATION_USERLIST:{
+			String userList="";
+			for(String user : this.nicks.keySet()) {
+				if(userList.equals("")) {
+					userList=user;
+				}else {
+				userList=userList+DELIMITER+user;
+				}
+			}
+			response= new DirMessage(DirMessageOps.OPERATION_USERLIST,userList);
+			break;
+			
 		}
 
 		default:

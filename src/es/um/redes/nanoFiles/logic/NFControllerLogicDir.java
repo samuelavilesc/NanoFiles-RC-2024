@@ -53,24 +53,29 @@ public class NFControllerLogicDir {
 	 */
 	protected boolean doLogin(String directoryHostname, String nickname) {
 		try {
-			this.directoryConnector= new DirectoryConnector(directoryHostname);
+			this.directoryConnector = new DirectoryConnector(directoryHostname);
 		} catch (IOException e) {
 			System.err.println("Fallo al establecer comunicación con el servidor.");
 			e.printStackTrace();
 		}
 		/*
-		 * TODO: Debe crear un objeto DirectoryConnector a partir del parámetro
-		 * directoryHostname y guardarlo en el atributo correspondiente para que pueda
-		 * ser utilizado por el resto de métodos de esta clase. A continuación,
-		 * utilizarlo para comunicarse con el directorio y tratar de realizar el
-		 * "login", informar por pantalla del éxito/fracaso e imprimir la clave de
-		 * sesión asignada por el directorio. Devolver éxito/fracaso de la operación.
+		 * lo hace en logIntoDirectory Debe crear un objeto DirectoryConnector a partir
+		 * del parámetro directoryHostname y guardarlo en el atributo correspondiente
+		 * para que pueda ser utilizado por el resto de métodos de esta clase. A
+		 * continuación, utilizarlo para comunicarse con el directorio y tratar de
+		 * realizar el "login", informar por pantalla del éxito/fracaso e imprimir la
+		 * clave de sesión asignada por el directorio. Devolver éxito/fracaso de la
+		 * operación.
 		 */
-	
+
 		boolean result = this.directoryConnector.logIntoDirectory(nickname);
-
-
-
+		if (result == true) {
+			System.out.println("Bienvenido, " + nickname);
+			System.out.println("Id de sesión: " + this.directoryConnector.getSessionKey());
+		} else {
+			this.directoryConnector=null;
+			System.err.println("Inicio de sesión fallido.");
+		}
 		return result;
 	}
 
@@ -85,8 +90,13 @@ public class NFControllerLogicDir {
 		 * identificarse. Devolver éxito/fracaso de la operación.
 		 */
 		boolean result = false;
-
-
+		if (this.directoryConnector != null) {
+			result = this.directoryConnector.logoutFromDirectory();
+			this.directoryConnector=null;
+			System.out.println("Sesión cerrada correctamente.");
+		} else {
+			System.err.println("No puedes cerrar sesión antes de abrirla.");
+		}
 
 		return result;
 	}
@@ -101,9 +111,23 @@ public class NFControllerLogicDir {
 		 * e imprimirla por pantalla. Devolver éxito/fracaso de la operación.
 		 */
 		boolean result = false;
+		if(this.directoryConnector!=null) {
+			String[] userList = this.directoryConnector.getUserList();
+			if(userList.length!=0) {
+				result=true;
+				System.out.println("Lista de usuarios activos: ");
+				for(String user: userList) {
+					System.out.println(user);
+				}
+			}else {
+				System.err.println("No existen usuarios activos en este momento.");
+			}
+			
+		} else {
+			System.err.println("No puedes consultar la lista de usuarios sin iniciar sesion.");
+		}
 
-
-
+			
 		return result;
 	}
 
@@ -119,8 +143,6 @@ public class NFControllerLogicDir {
 		 * operación.
 		 */
 		boolean result = false;
-
-
 
 		return result;
 	}
@@ -143,8 +165,6 @@ public class NFControllerLogicDir {
 		 */
 		boolean result = false;
 
-
-
 		return result;
 	}
 
@@ -162,8 +182,6 @@ public class NFControllerLogicDir {
 		 * operación.
 		 */
 		boolean result = false;
-
-
 
 		return result;
 	}
@@ -186,8 +204,6 @@ public class NFControllerLogicDir {
 		 * IP:puerto válidos), se debe devolver null.
 		 */
 		InetSocketAddress serverAddr = null;
-
-
 
 		return serverAddr;
 	}
@@ -219,8 +235,6 @@ public class NFControllerLogicDir {
 			 * se debe usar InetAddress.getByName()
 			 */
 
-
-
 		} else {
 			/*
 			 * TODO: Si es un nickname, preguntar al directorio la IP:puerto asociada a
@@ -246,8 +260,6 @@ public class NFControllerLogicDir {
 		 * operación.
 		 */
 		boolean result = false;
-
-
 
 		return result;
 	}
@@ -276,9 +288,6 @@ public class NFControllerLogicDir {
 		 * 
 		 */
 
-
-
-
 		return serverAddressList;
 	}
 
@@ -294,8 +303,6 @@ public class NFControllerLogicDir {
 		 * para identificarse.
 		 */
 		boolean result = false;
-
-
 
 		return result;
 	}
