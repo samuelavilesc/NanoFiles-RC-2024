@@ -13,7 +13,6 @@ public class DirMessageOps {
 	public static final String CODE_LOGINOK = "loginok";
 	public static final String CODE_LOGOUTOK = "logoutok";
 	public static final String CODE_LOGINFAILED = "login_failed:-1";
-	public static final String CODE_LOGOUTFAILED = "logout_failed:-1";
 
 
 

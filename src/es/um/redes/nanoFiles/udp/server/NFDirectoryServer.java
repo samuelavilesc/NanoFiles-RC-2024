@@ -243,9 +243,6 @@ public class NFDirectoryServer {
 				username=this.sessionKeys.get(msg.getSession_key());
 				this.nicks.remove(username);
 				this.sessionKeys.remove(msg.getSession_key());
-			}else {
-				response= new DirMessage(DirMessageOps.CODE_LOGOUTFAILED,username);
-				
 			}
 			break;
 			
