@@ -14,20 +14,15 @@ import es.um.redes.nanoFiles.util.FileInfo;
 
 public class PeerMessage {
 
-	/*
-	 * 
-	 * ByteBuffer bb = ByteBuffer.allocate(DirMessage.OPCODE_SIZE_BYTES +
-	 * Integer.BYTES + bserverdata.length);
-	 * bb.put(DirMessageOps.OPCODE_SERVE_FILES); bb.putInt(bserverdata.length);
-	 * bb.put(bserverdata);
-	 */
+
 
 	private byte opcode;
 	private byte[] param1;
 	private byte[] param2;
+	private static int bytesValor;
 
 	/*
-	 * TODO: Añadir atributos y crear otros constructores específicos para crear
+	 *  Añadir atributos y crear otros constructores específicos para crear
 	 * mensajes con otros campos (tipos de datos)
 	 * 
 	 */
@@ -54,11 +49,40 @@ public class PeerMessage {
 	}
 
 //formato tlv
+	public PeerMessage(byte op, byte longitud, byte[] valor) {
+		if (valor.length == longitud) {
+			opcode = op;
+			param1 = Byte.toString(longitud).getBytes();
+			param2 = valor;
+			bytesValor = 1;
+		}
+
+	}
+
+	public PeerMessage(byte op, short longitud, byte[] valor) {
+		if (valor.length == longitud) {
+			opcode = op;
+			param1 = Short.toString(longitud).getBytes();
+			param2 = valor;
+			bytesValor = Short.BYTES;
+		}
+	}
+
+	public PeerMessage(byte op, int longitud, byte[] valor) {
+		if (valor.length == longitud) {
+			opcode = op;
+			param1 = Integer.toString(longitud).getBytes();
+			param2 = valor;
+			bytesValor = Integer.BYTES;
+		}
+	}
+
 	public PeerMessage(byte op, long longitud, byte[] valor) {
 		if (valor.length == longitud) {
 			opcode = op;
 			param1 = Long.toString(longitud).getBytes();
 			param2 = valor;
+			bytesValor = Long.BYTES;
 		}
 
 	}
@@ -124,7 +148,7 @@ public class PeerMessage {
 		}
 		case (PeerMessageOps.OPCODE_DOWNLOAD_FILE): {
 
-			byte[] hash = new byte[8]; // suponemos que el hash es de 8 bytes maximo
+			byte[] hash = new byte[bytesValor]; // suponemos que el hash es de 8 bytes maximo
 			dis.readFully(hash);
 			message.setParam1(hash);
 			break;
@@ -132,28 +156,84 @@ public class PeerMessage {
 		case (PeerMessageOps.OPCODE_NOT_FOUND):
 			break;
 		case (PeerMessageOps.OPCODE_SEND_FILE): {
-/*
- * Falta por saber hacer el caso de que el formato del mensaje sea TLV
- * hay que saber como determinar el tamaño del campo longitud para poder leer los bytes del campo
- * que le siguen.
- * */
-			byte[] longitud = new byte[8]; // supongo que el campo longitud tiene 8 bytes
+			/*
+			 * Falta por saber hacer el caso de que el formato del mensaje sea TLV hay que
+			 * saber como determinar el tamaño del campo longitud para poder leer los bytes
+			 * del campo que le siguen.
+			 */
+			/*
+			 * Dependendiendo del tamaño en bytes del campo valor del formato TLV
+			 * va a realizar una conversion u otra leyendo asi mas o menos bytes del dis
+			 * */
+			byte[] longitud = new byte[bytesValor]; // supongo que el campo longitud tiene 8 bytes
 			dis.read(longitud);
 			message.setParam1(longitud);
-			long longit = Long.parseLong(longitud.toString());
-			byte[] valor = new byte[(int) longit];
-			message.setParam2(valor);
-			dis.readFully(valor);
+			switch (bytesValor) {
+			case (1): {
+				byte[] valor = new byte[1];
+				dis.readFully(valor);
+				message.setParam2(valor);
+				break;
+			}
+			case (Short.BYTES): {
+				short longit = Short.parseShort(longitud.toString());
+				byte[] valor = new byte[longit];
+				dis.readFully(valor);
+				message.setParam2(valor);
+				
+				break;
+			}
+			case (Integer.BYTES): {
+				int longit = Integer.parseInt(longitud.toString());
+				byte[] valor = new byte[longit];
+				dis.readFully(valor);
+				message.setParam2(valor);
+				break;
+			}
+			case(Long.BYTES):{
+				long longit = Long.parseLong(longitud.toString());
+				byte[] valor = new byte[(int) longit];
+				dis.readFully(valor);
+				message.setParam2(valor);
+				break;
+			}
+			}
 			break;
 		}
 		case (PeerMessageOps.OPCODE_SEND_FILE_CHUNK): {
-			byte[] longitud = new byte[8]; // supongo que el campo longitud tiene 8 bytes
+			byte[] longitud = new byte[bytesValor]; // supongo que el campo longitud tiene 8 bytes
 			dis.read(longitud);
 			message.setParam1(longitud);
-			long longit = Long.parseLong(longitud.toString());
-			byte[] valor = new byte[(int) longit];
-			message.setParam2(valor);
-			dis.readFully(valor);
+			switch (bytesValor) {
+			case (1): {
+				byte[] valor = new byte[1];
+				dis.readFully(valor);
+				message.setParam2(valor);
+				break;
+			}
+			case (Short.BYTES): {
+				short longit = Short.parseShort(longitud.toString());
+				byte[] valor = new byte[longit];
+				dis.readFully(valor);
+				message.setParam2(valor);
+				break;
+			}
+			case (Integer.BYTES): {
+				int longit = Integer.parseInt(longitud.toString());
+				byte[] valor = new byte[longit];
+				dis.readFully(valor);
+				message.setParam2(valor);
+				break;
+			}
+			case(Long.BYTES):{
+				long longit = Long.parseLong(longitud.toString());
+				byte[] valor = new byte[(int) longit];
+				dis.readFully(valor);
+				message.setParam2(valor);
+				break;
+			}
+			}
+			
 			break;
 		}
 		default:
@@ -192,7 +272,7 @@ public class PeerMessage {
 		case (PeerMessageOps.OPCODE_SEND_FILE_CHUNK): {
 			dos.write(param1);
 			dos.write(param2);
-
+			break;
 		}
 
 		default:

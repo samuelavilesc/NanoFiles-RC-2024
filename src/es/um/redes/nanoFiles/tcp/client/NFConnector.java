@@ -19,7 +19,13 @@ public class NFConnector {
 	private Socket socket;
 	private InetSocketAddress serverAddr;
 
-	
+	/*
+	 * 
+	 * ByteBuffer bb = ByteBuffer.allocate(DirMessage.OPCODE_SIZE_BYTES +
+	 * Integer.BYTES + bserverdata.length);
+	 * bb.put(DirMessageOps.OPCODE_SERVE_FILES); bb.putInt(bserverdata.length);
+	 * bb.put(bserverdata);
+	 */
 
 
 

@@ -21,7 +21,8 @@ public class PeerMessageTest {
 		 * writeMessageToOutputStream para comprobar que readMessageFromInputStream
 		 * construye un mensaje idéntico al original.
 		 */
-		PeerMessage msgOut = new PeerMessage(PeerMessageOps.OPCODE_DOWNLOAD_FILE, "holasoyo".getBytes());
+		byte b = 1;
+		PeerMessage msgOut = new PeerMessage(PeerMessageOps.OPCODE_SEND_FILE_CHUNK,b ,"2".getBytes());
 		msgOut.writeMessageToOutputStream(fos);
 
 		DataInputStream fis = new DataInputStream(new FileInputStream(nombreArchivo));
