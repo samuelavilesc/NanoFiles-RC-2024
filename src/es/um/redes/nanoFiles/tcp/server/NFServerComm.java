@@ -7,6 +7,8 @@ import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.net.Socket;
 
@@ -21,8 +23,21 @@ public class NFServerComm {
 		/*
 		 * TODO: Crear dis/dos a partir del socket
 		 */
+		try {
+			InputStream is = socket.getInputStream();
+			OutputStream os = socket.getOutputStream();
+			DataInputStream dis = new DataInputStream(is);
+			DataOutputStream dos = new DataOutputStream(os);
+			while(!socket.isClosed()) {
+				PeerMessage receiveFromClient = PeerMessage.readMessageFromInputStream(dis);
+				
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
 		/*
-		 * TODO: Mientras el cliente esté conectado, leer mensajes de socket,
+		 * Mientras el cliente esté conectado, leer mensajes de socket,
 		 * convertirlo a un objeto PeerMessage y luego actuar en función del tipo de
 		 * mensaje recibido, enviando los correspondientes mensajes de respuesta.
 		 */

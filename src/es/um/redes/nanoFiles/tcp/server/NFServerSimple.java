@@ -17,10 +17,13 @@ public class NFServerSimple {
 
 	public NFServerSimple() throws IOException {
 		/*
-		 * TODO: Crear una direción de socket a partir del puerto especificado
+		 *  Crear una direción de socket a partir del puerto especificado
 		 */
+		InetSocketAddress dir = new InetSocketAddress(PORT);
+		this.serverSocket = new ServerSocket();
+		this.serverSocket.bind(dir);
 		/*
-		 * TODO: Crear un socket servidor y ligarlo a la dirección de socket anterior
+		 * Crear un socket servidor y ligarlo a la dirección de socket anterior
 		 */
 
 
@@ -38,12 +41,20 @@ public class NFServerSimple {
 		/*
 		 * TODO: Comprobar que el socket servidor está creado y ligado
 		 */
+		if(serverSocket!=null&&!serverSocket.isClosed()) {
+			try {
+				Socket conn = this.serverSocket.accept();
+				NFServerComm.serveFilesToClient(conn);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 		/*
-		 * TODO: Usar el socket servidor para esperar conexiones de otros peers que
+		 *  Usar el socket servidor para esperar conexiones de otros peers que
 		 * soliciten descargar ficheros
 		 */
 		/*
-		 * TODO: Al establecerse la conexión con un peer, la comunicación con dicho
+		 *  Al establecerse la conexión con un peer, la comunicación con dicho
 		 * cliente se hace en el método NFServerComm.serveFilesToClient(socket), al cual
 		 * hay que pasarle el socket devuelto por accept
 		 */

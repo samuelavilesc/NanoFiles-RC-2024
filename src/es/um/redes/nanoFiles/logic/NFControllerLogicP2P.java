@@ -5,8 +5,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
 import java.util.LinkedList;
 import java.util.Random;
+
+import es.um.redes.nanoFiles.tcp.client.NFConnector;
+import es.um.redes.nanoFiles.tcp.server.NFServerSimple;
 
 
 
@@ -31,7 +35,15 @@ public class NFControllerLogicP2P {
 	protected void foregroundServeFiles() {
 		/*
 		 * TODO: Crear objeto servidor NFServerSimple y ejecutarlo en primer plano.
+		 * 
 		 */
+		try {
+			NFServerSimple simple = new NFServerSimple();
+			simple.run();
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.err.println("Hubo un problema con la creacion del NFServerSimple");
+		}
 		/*
 		 * TODO: Las excepciones que puedan lanzarse deben ser capturadas y tratadas en
 		 * este método. Si se produce una excepción de entrada/salida (error del que no
@@ -83,8 +95,26 @@ public class NFControllerLogicP2P {
 			System.err.println("* Cannot start download - No server address provided");
 			return false;
 		}
+
+		try {
+			NFConnector conn = new NFConnector(fserverAddr);
+			File file = new File(localFileName);
+			if(!file.exists()) {
+				file.createNewFile();
+				conn.downloadFile(targetFileHash, file);
+				System.out.println("Descarga del archivo completada con éxito.");
+			}else {
+				System.err.println("No se ha podido completar la descarga del archivo, ya existe un archivo"
+						+ "con el mismo nombre");
+			}
+			
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		/*
-		 * TODO: Crear un objeto NFConnector para establecer la conexión con el peer
+		 *  Crear un objeto NFConnector para establecer la conexión con el peer
 		 * servidor de ficheros, y usarlo para descargar el fichero mediante su método
 		 * "downloadFile". Se debe comprobar previamente si ya existe un fichero con el
 		 * mismo nombre en esta máquina, en cuyo caso se informa y no se realiza la
@@ -92,7 +122,7 @@ public class NFControllerLogicP2P {
 		 * completado la descarga.
 		 */
 		/*
-		 * TODO: Las excepciones que puedan lanzarse deben ser capturadas y tratadas en
+		 *  Las excepciones que puedan lanzarse deben ser capturadas y tratadas en
 		 * este método. Si se produce una excepción de entrada/salida (error del que no
 		 * es posible recuperarse), se debe informar sin abortar el programa
 		 */

@@ -18,7 +18,8 @@ import es.um.redes.nanoFiles.util.FileDigest;
 public class NFConnector {
 	private Socket socket;
 	private InetSocketAddress serverAddr;
-
+    private DataInputStream dis;
+    private DataOutputStream dos;
 	/*
 	 * 
 	 * ByteBuffer bb = ByteBuffer.allocate(DirMessage.OPCODE_SIZE_BYTES +
@@ -33,6 +34,8 @@ public class NFConnector {
 		serverAddr = fserverAddr;
 		try {
 			this.socket= new Socket(fserverAddr.getHostName(),fserverAddr.getPort());
+			 this.dis = new DataInputStream(socket.getInputStream());
+	         this.dos = new DataOutputStream(socket.getOutputStream());
 		}catch(UnknownHostException e) {
 			System.err.println("Fallo al crear la conexión con el socket.");
 			e.printStackTrace();
@@ -44,7 +47,7 @@ public class NFConnector {
 		 */
 
 		/*
-		 * TODO Se crean los DataInputStream/DataOutputStream a partir de los streams de
+		 *  Se crean los DataInputStream/DataOutputStream a partir de los streams de
 		 * entrada/salida del socket creado. Se usarán para enviar (dos) y recibir (dis)
 		 * datos del servidor.
 		 */
@@ -67,20 +70,37 @@ public class NFConnector {
 	 */
 	public boolean downloadFile(String targetFileHashSubstr, File file) throws IOException {
 		boolean downloaded = false;
+		byte longitud=20;
+		
+		PeerMessage sendToServer = new PeerMessage(PeerMessageOps.OPCODE_DOWNLOAD_FILE,longitud,targetFileHashSubstr.getBytes());
+		sendToServer.writeMessageToOutputStream(dos);
 		/*
-		 * TODO: Construir objetos PeerMessage que modelen mensajes con los valores
+		 *  Construir objetos PeerMessage que modelen mensajes con los valores
 		 * adecuados en sus campos (atributos), según el protocolo diseñado, y enviarlos
 		 * al servidor a través del "dos" del socket mediante el método
 		 * writeMessageToOutputStream.
 		 */
+		PeerMessage receiveFromServer = PeerMessage.readMessageFromInputStream(dis);
+		byte opcode = receiveFromServer.getOpcode();
+		byte[] par2 = receiveFromServer.getParam2();
+		if(opcode==2) {
+			try (FileOutputStream fos = new FileOutputStream(file)) {
+                fos.write(par2);
+                fos.close();
+            }
+            downloaded = true;
+        } else {
+            System.err.println("El servidor no pudo completar la descarga.");
+		}
+		/*TODO: hacer que funcione con chunks de ficheros*/
 		/*
-		 * TODO: Recibir mensajes del servidor a través del "dis" del socket usando
+		 * : Recibir mensajes del servidor a través del "dis" del socket usando
 		 * PeerMessage.readMessageFromInputStream, y actuar en función del tipo de
 		 * mensaje recibido, extrayendo los valores necesarios de los atributos del
 		 * objeto (valores de los campos del mensaje).
 		 */
 		/*
-		 * TODO: Para escribir datos de un fichero recibidos en un mensaje, se puede
+		 *  Para escribir datos de un fichero recibidos en un mensaje, se puede
 		 * crear un FileOutputStream a partir del parámetro "file" para escribir cada
 		 * fragmento recibido (array de bytes) en el fichero mediante el método "write".
 		 * Cerrar el FileOutputStream una vez se han escrito todos los fragmentos.
@@ -91,7 +111,15 @@ public class NFConnector {
 		 * servidor (porque no concuerde o porque haya más de un fichero coincidente con
 		 * dicha subcadena)
 		 */
-
+		if (downloaded) {
+            String hashFromServer = receiveFromServer.
+            String hashOfFile = FileDigest.computeFileChecksumString();
+            if (hashFromServer.equals(hashOfFile)) {
+                System.out.println("La descarga del archivo fue exitosa y su integridad ha sido verificada.");
+            } else {
+                System.out.println("La descarga del archivo fue exitosa pero su integridad no pudo ser verificada.");
+            }
+        }
 		/*
 		 * TODO: Finalmente, comprobar la integridad del fichero creado para comprobar
 		 * que es idéntico al original, calculando el hash a partir de su contenido con

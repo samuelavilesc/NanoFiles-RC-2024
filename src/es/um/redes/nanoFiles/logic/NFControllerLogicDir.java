@@ -12,7 +12,7 @@ import es.um.redes.nanoFiles.udp.client.DirectoryConnector;
 import es.um.redes.nanoFiles.util.FileInfo;
 
 public class NFControllerLogicDir {
-
+	private final static String DELIMITER=":";
 	// Conector para enviar y recibir mensajes del directorio
 	private DirectoryConnector directoryConnector;
 
@@ -221,23 +221,26 @@ public class NFControllerLogicDir {
 	public InetSocketAddress getServerAddress(String serverNicknameOrSocketAddr) {
 		InetSocketAddress fserverAddr = null;
 		/*
-		 * TODO: Averiguar si el nickname es en realidad una cadena "IP:puerto", en cuyo
+		 *  Averiguar si el nickname es en realidad una cadena "IP:puerto", en cuyo
 		 * caso no es necesario comunicarse con el directorio (simplemente se devuelve
 		 * un InetSocketAddress); en otro caso, utilizar el método
 		 * lookupServerAddrByUsername de esta clase para comunicarse con el directorio y
 		 * obtener la IP:puerto del servidor con dicho nickname. Devolver null si la
 		 * operación fracasa.
 		 */
+
 		if (serverNicknameOrSocketAddr.contains(":")) { // Then it has to be a socket address (IP:port)
-			/*
-			 * TODO: Extraer la dirección IP y el puerto de la cadena y devolver un
+			String[] str = serverNicknameOrSocketAddr.split(DELIMITER);
+			fserverAddr = new InetSocketAddress(str[0], Integer.parseInt(str[1]));
+			/* 
+			 * : Extraer la dirección IP y el puerto de la cadena y devolver un
 			 * InetSocketAddress. Para convertir un string con la IP a un objeto InetAddress
 			 * se debe usar InetAddress.getByName()
 			 */
 
 		} else {
 			/*
-			 * TODO: Si es un nickname, preguntar al directorio la IP:puerto asociada a
+			 * : Si es un nickname, preguntar al directorio la IP:puerto asociada a
 			 * dicho peer servidor.
 			 */
 			fserverAddr = lookupServerAddrByUsername(serverNicknameOrSocketAddr);

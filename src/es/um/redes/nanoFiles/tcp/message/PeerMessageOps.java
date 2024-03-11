@@ -10,6 +10,8 @@ public class PeerMessageOps {
 	public static final byte OPCODE_SEND_FILE = 2;
 	public static final byte OPCODE_SEND_FILE_CHUNK = 3;
 	public static final byte OPCODE_NOT_FOUND = 4;
+	public static final byte OPCODE_GET_HASH = 5;
+	
 	
 
 
@@ -26,6 +28,7 @@ public class PeerMessageOps {
 			OPCODE_SEND_FILE,
 			OPCODE_SEND_FILE_CHUNK,
 			OPCODE_NOT_FOUND,
+			OPCODE_GET_HASH,
 			
 
 
@@ -37,6 +40,7 @@ public class PeerMessageOps {
 			"SEND_FILE",
 			"SEND_FILE_CHUNK",
 			"NOT_FOUND",
+			"OPCODE_GET_HASH",
 
 
 
