@@ -105,9 +105,9 @@ public class NFControllerLogicP2P {
 				System.out.println("Descarga del archivo completada con éxito.");
 			}else {
 				System.err.println("No se ha podido completar la descarga del archivo, ya existe un archivo"
-						+ "con el mismo nombre");
+						+ " con el mismo nombre");
 			}
-			
+			conn.close();
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -128,7 +128,7 @@ public class NFControllerLogicP2P {
 		 */
 
 
-
+	
 		return result;
 	}
 

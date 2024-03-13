@@ -19,7 +19,7 @@ public class PeerMessage {
 	private byte opcode;
 	private byte[] param1;
 	private byte[] param2;
-	private static int bytesValor;
+	private static int bytesLongitud;
 
 	/*
 	 *  Añadir atributos y crear otros constructores específicos para crear
@@ -52,9 +52,10 @@ public class PeerMessage {
 	public PeerMessage(byte op, byte longitud, byte[] valor) {
 		if (valor.length == longitud) {
 			opcode = op;
-			param1 = Byte.toString(longitud).getBytes();
+			param1 = new byte[1];
+			param1[0]=longitud;
 			param2 = valor;
-			bytesValor = 1;
+			bytesLongitud = 1;
 		}
 
 	}
@@ -62,27 +63,33 @@ public class PeerMessage {
 	public PeerMessage(byte op, short longitud, byte[] valor) {
 		if (valor.length == longitud) {
 			opcode = op;
-			param1 = Short.toString(longitud).getBytes();
+			ByteBuffer aux= ByteBuffer.allocate(Short.BYTES);
+			aux.putShort(longitud);
+			param1 = aux.array();
 			param2 = valor;
-			bytesValor = Short.BYTES;
+			bytesLongitud = Short.BYTES;
 		}
 	}
 
 	public PeerMessage(byte op, int longitud, byte[] valor) {
 		if (valor.length == longitud) {
 			opcode = op;
-			param1 = Integer.toString(longitud).getBytes();
+			ByteBuffer aux= ByteBuffer.allocate(Integer.BYTES);
+			aux.putInt(longitud);
+			param1 = aux.array();
 			param2 = valor;
-			bytesValor = Integer.BYTES;
+			bytesLongitud = Integer.BYTES;
 		}
 	}
 
 	public PeerMessage(byte op, long longitud, byte[] valor) {
 		if (valor.length == longitud) {
 			opcode = op;
-			param1 = Long.toString(longitud).getBytes();
+			ByteBuffer aux= ByteBuffer.allocate(Long.BYTES);
+			aux.putLong(longitud);
+			param1 = aux.array();
 			param2 = valor;
-			bytesValor = Long.BYTES;
+			bytesLongitud = Long.BYTES;
 		}
 
 	}
@@ -132,7 +139,7 @@ public class PeerMessage {
 	 */
 	public static PeerMessage readMessageFromInputStream(DataInputStream dis) throws IOException {
 		/*
-		 * TODO: En función del tipo de mensaje, leer del socket a través del "dis" el
+		 * En función del tipo de mensaje, leer del socket a través del "dis" el
 		 * resto de campos para ir extrayendo con los valores y establecer los atributos
 		 * del un objeto DirMessage que contendrá toda la información del mensaje, y que
 		 * será devuelto como resultado. NOTA: Usar dis.readFully para leer un array de
@@ -147,64 +154,40 @@ public class PeerMessage {
 			break;
 		}
 		case (PeerMessageOps.OPCODE_DOWNLOAD_FILE): {
-
-			byte[] hash = new byte[bytesValor]; // suponemos que el hash es de 8 bytes maximo
+			bytesLongitud=1;
+			byte[] hashLength =  new byte[bytesLongitud];// suponemos que el campo valor del hash ocupa 1byte
+			hashLength[0]=dis.readByte();
+			message.setParam1(hashLength);
+			byte[] hash = new byte[(int)hashLength[0]];
 			dis.readFully(hash);
-			message.setParam1(hash);
+			message.setParam2(hash);
+			
 			break;
 		}
 		case (PeerMessageOps.OPCODE_NOT_FOUND):
 			break;
 		case (PeerMessageOps.OPCODE_SEND_FILE): {
 			/*
-			 * Falta por saber hacer el caso de que el formato del mensaje sea TLV hay que
-			 * saber como determinar el tamaño del campo longitud para poder leer los bytes
-			 * del campo que le siguen.
-			 */
-			/*
-			 * Dependendiendo del tamaño en bytes del campo valor del formato TLV
-			 * va a realizar una conversion u otra leyendo asi mas o menos bytes del dis
-			 * */
-			byte[] longitud = new byte[bytesValor]; // supongo que el campo longitud tiene 8 bytes
+			 * Como el tamaño del fichero es un long
+			 * mandando el fichero completo el tamaño del campo longitud
+			 * del tlv va a ser un long*/
+			bytesLongitud=Long.BYTES;
+			byte[] longitud = new byte[bytesLongitud];
 			dis.read(longitud);
 			message.setParam1(longitud);
-			switch (bytesValor) {
-			case (1): {
-				byte[] valor = new byte[1];
-				dis.readFully(valor);
-				message.setParam2(valor);
-				break;
-			}
-			case (Short.BYTES): {
-				short longit = Short.parseShort(longitud.toString());
-				byte[] valor = new byte[longit];
-				dis.readFully(valor);
-				message.setParam2(valor);
-				
-				break;
-			}
-			case (Integer.BYTES): {
-				int longit = Integer.parseInt(longitud.toString());
-				byte[] valor = new byte[longit];
-				dis.readFully(valor);
-				message.setParam2(valor);
-				break;
-			}
-			case(Long.BYTES):{
-				long longit = Long.parseLong(longitud.toString());
-				byte[] valor = new byte[(int) longit];
-				dis.readFully(valor);
-				message.setParam2(valor);
-				break;
-			}
-			}
+			ByteBuffer byteBuffer = ByteBuffer.wrap(longitud);
+			long longit = byteBuffer.getLong();
+			byte[] valor = new byte[(int) longit];
+			dis.readFully(valor);
+			message.setParam2(valor);
 			break;
 		}
+		/* TODO: cambiar los parse cuando sepa como va a ser
 		case (PeerMessageOps.OPCODE_SEND_FILE_CHUNK): {
-			byte[] longitud = new byte[bytesValor]; // supongo que el campo longitud tiene 8 bytes
+			byte[] longitud = new byte[bytesLongitud]; // supongo que el campo longitud tiene 8 bytes
 			dis.read(longitud);
 			message.setParam1(longitud);
-			switch (bytesValor) {
+			switch (bytesLongitud) {
 			case (1): {
 				byte[] valor = new byte[1];
 				dis.readFully(valor);
@@ -236,6 +219,18 @@ public class PeerMessage {
 			
 			break;
 		}
+		*/
+		case (PeerMessageOps.OPCODE_GET_HASH): {
+			bytesLongitud=1;
+			byte[] hashLength =  new byte[bytesLongitud];
+			hashLength[0]=dis.readByte();
+			message.setParam1(hashLength);
+			byte[] hash = new byte[(int)hashLength[0]];
+			dis.readFully(hash);
+			message.setParam2(hash);
+			
+			break;
+		}
 		default:
 			System.err.println("PeerMessage.readMessageFromInputStream doesn't know how to parse this message opcode: "
 					+ PeerMessageOps.opcodeToOperation(opcode));
@@ -260,6 +255,7 @@ public class PeerMessage {
 		}
 		case (PeerMessageOps.OPCODE_DOWNLOAD_FILE): {
 			dos.write(param1);
+			dos.write(param2);
 			break;
 		}
 		case (PeerMessageOps.OPCODE_NOT_FOUND):
@@ -270,6 +266,11 @@ public class PeerMessage {
 			break;
 		}
 		case (PeerMessageOps.OPCODE_SEND_FILE_CHUNK): {
+			dos.write(param1);
+			dos.write(param2);
+			break;
+		}
+		case(PeerMessageOps.OPCODE_GET_HASH):{
 			dos.write(param1);
 			dos.write(param2);
 			break;

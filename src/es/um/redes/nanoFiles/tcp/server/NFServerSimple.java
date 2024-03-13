@@ -38,6 +38,7 @@ public class NFServerSimple {
 	 * 
 	 */
 	public void run() {
+		while(true) {
 		/*
 		 * TODO: Comprobar que el socket servidor está creado y ligado
 		 */
@@ -58,9 +59,9 @@ public class NFServerSimple {
 		 * cliente se hace en el método NFServerComm.serveFilesToClient(socket), al cual
 		 * hay que pasarle el socket devuelto por accept
 		 */
+		}
 
 
-
-		System.out.println("NFServerSimple stopped. Returning to the nanoFiles shell...");
+		//System.out.println("NFServerSimple stopped. Returning to the nanoFiles shell...");
 	}
 }
