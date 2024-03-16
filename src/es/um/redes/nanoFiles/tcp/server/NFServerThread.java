@@ -9,8 +9,13 @@ public class NFServerThread extends Thread {
 	 * NFServerComm.serveFilesToClient con el socket retornado por el método accept
 	 * (un socket distinto para "conversar" con un cliente)
 	 */
-
-
-
+	private Socket socket;
+	public NFServerThread(Socket socket) {
+		this.socket=socket;
+	}
+	@Override
+	public void run() {
+		NFServerComm.serveFilesToClient(socket);
+	}
 
 }

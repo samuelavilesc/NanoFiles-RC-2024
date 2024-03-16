@@ -28,6 +28,7 @@ public class DirMessage {
 	private static final String FIELDNAME_OPERATION = "operation";
 	private static final String FIELDNAME_NICKNAME = "nickname";
 	private static final String FIELDNAME_SESSIONKEY = "session_key";
+	private static final String FIELDNAME_PORT = "port";
 
 	/*
 	 * TODO: Definir de manera simbólica los nombres de todos los campos que pueden
@@ -44,11 +45,13 @@ public class DirMessage {
 	 */
 	private String nickname;
 	private int session_key;
+	private int port;
 
 	public DirMessage(String op) {
 		operation = op;
 		nickname = null;
 		session_key = -1;
+		port=-1;
 	}
 
 	/*
@@ -59,6 +62,7 @@ public class DirMessage {
 		this.nickname = nickname;
 		operation = op;
 		session_key = -1;
+		port=-1;
 	}
 
 	/*
@@ -69,6 +73,17 @@ public class DirMessage {
 		operation = op;
 		nickname = null;
 		this.session_key = session_key;
+		port=-1;
+	}
+	/*
+	 * Constructor para dar de alta servidor
+	 * 
+	 */
+	public DirMessage(String op, int session_key, int port) {
+		operation = op;
+		nickname = null;
+		this.session_key = session_key;
+		this.port=port;
 	}
 
 	public int getSession_key() {
@@ -83,7 +98,13 @@ public class DirMessage {
 	 * TODO: Crear diferentes constructores adecuados para construir mensajes de
 	 * diferentes tipos con sus correspondientes argumentos (campos del mensaje)
 	 */
+	public int getPort() {
+		return port;
+	}
 
+	public void setPort(int port) {
+		this.port = port;
+	}
 	public String getOperation() {
 		return operation;
 	}
@@ -145,6 +166,13 @@ public class DirMessage {
 				}
 				break;
 			}
+			case FIELDNAME_PORT: {
+				if (m != null && Integer.parseInt(value) != -1) {
+					
+				}
+				m.setPort(Integer.parseInt(value));
+				break;
+			}
 
 			default:
 				System.err.println("PANIC: DirMessage.fromString - message with unknown field name " + fieldName);
@@ -169,6 +197,7 @@ public class DirMessage {
 		sb.append(FIELDNAME_OPERATION + DELIMITER + operation + END_LINE); // Construimos el campo
 		sb.append(FIELDNAME_NICKNAME + DELIMITER + nickname + END_LINE);
 		sb.append(FIELDNAME_SESSIONKEY + DELIMITER + session_key + END_LINE);
+		sb.append(FIELDNAME_PORT + DELIMITER + port + END_LINE);
 		/*
 		 * TODO: En función del tipo de mensaje, crear una cadena con el tipo y
 		 * concatenar el resto de campos necesarios usando los valores de los atributos
@@ -178,4 +207,6 @@ public class DirMessage {
 		sb.append(END_LINE); // Marcamos el final del mensaje
 		return sb.toString();
 	}
+
 }
+

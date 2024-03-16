@@ -297,10 +297,31 @@ public class DirectoryConnector {
 	public boolean registerServerPort(int serverPort) {
 		// TODO: Ver TODOs en logIntoDirectory y seguir esquema similar
 		boolean success = false;
-
+		DirMessage messageToServer = new DirMessage(DirMessageOps.OPERATION_REGISTER_FILESERVER,this.sessionKey,serverPort);
+		byte[] dataToServer = new byte[DirMessage.PACKET_MAX_SIZE];
+		dataToServer=messageToServer.toString().getBytes();
+		byte[] dataFromServer = sendAndReceiveDatagrams(dataToServer);
+		String messageFromServer = new String(dataFromServer, 0, dataFromServer.length);
+		DirMessage responseFromServer= DirMessage.fromString(messageFromServer);
+		if(responseFromServer.getOperation().equals(DirMessageOps.CODE_REGSERVER_OK)) {
+			success=true;
+		}
 		return success;
 	}
-
+	public boolean unregisterServerPort() {
+		// TODO: Ver TODOs en logIntoDirectory y seguir esquema similar
+		boolean success = false;
+		DirMessage messageToServer = new DirMessage(DirMessageOps.OPERATION_UNREGISTER_FILESERVER,this.sessionKey);
+		byte[] dataToServer = new byte[DirMessage.PACKET_MAX_SIZE];
+		dataToServer=messageToServer.toString().getBytes();
+		byte[] dataFromServer = sendAndReceiveDatagrams(dataToServer);
+		String messageFromServer = new String(dataFromServer, 0, dataFromServer.length);
+		DirMessage responseFromServer= DirMessage.fromString(messageFromServer);
+		if(responseFromServer.getOperation().equals(DirMessageOps.CODE_UNREGSERVER_OK)) {
+			success=true;
+		}
+		return success;
+	}
 	/**
 	 * Método para obtener del directorio la dirección de socket (IP:puerto)
 	 * asociada a un determinado nickname.

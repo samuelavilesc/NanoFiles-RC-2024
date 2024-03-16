@@ -119,6 +119,7 @@ public class NFControllerLogicDir {
 				for(String user: userList) {
 					System.out.println(user);
 				}
+				System.out.println("Los usuarios marcados con una '!' están registrados como servidor de ficheros.");
 			}else {
 				System.err.println("No existen usuarios activos en este momento.");
 			}
@@ -164,7 +165,7 @@ public class NFControllerLogicDir {
 		 * éxito/fracaso de la operación.
 		 */
 		boolean result = false;
-
+		this.directoryConnector.registerServerPort(serverPort);
 		return result;
 	}
 
@@ -306,6 +307,7 @@ public class NFControllerLogicDir {
 		 * para identificarse.
 		 */
 		boolean result = false;
+		this.directoryConnector.unregisterServerPort();
 
 		return result;
 	}

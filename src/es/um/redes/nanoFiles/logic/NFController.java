@@ -20,6 +20,7 @@ public class NFController {
 	 * TODO: Añadir más constantes que representen los estados del autómata del
 	 * cliente de directorio.
 	 */
+	private static final int FGSERVER_PORT = 10000;
 
 	/**
 	 * Shell para leer comandos de usuario de la entrada estándar
@@ -134,7 +135,15 @@ public class NFController {
 			 * Pedir al controllerPeer que lance un servidor de ficheros en primer plano
 			 * (método foregroundServeFiles). Este método no retorna...
 			 */
-			controllerPeer.foregroundServeFiles();
+			if(currentState==LOGGED_IN) {
+				commandSucceeded = controllerDir.registerFileServer(FGSERVER_PORT);
+				controllerPeer.foregroundServeFiles();
+				//si continua la ejecucion es debido a que el fgserver se ha finalizado
+				commandSucceeded = controllerDir.unregisterFileServer();
+			}else {
+				System.err.println("Debes iniciar sesion antes de lanzar un servidor de ficheros.");
+			}
+			
 			break;
 		case NFCommands.COM_PUBLISH:
 			/*
@@ -152,9 +161,14 @@ public class NFController {
 			 * ficheros en el directorio, indicando el puerto en el que nuestro servidor
 			 * escucha conexiones de otros peers (método registerFileServer).
 			 */
-			boolean serverRunning = controllerPeer.backgroundServeFiles();
-			if (serverRunning) {
-				commandSucceeded = controllerDir.registerFileServer(controllerPeer.getServerPort());
+			if(currentState==LOGGED_IN) {
+				boolean serverRunning = controllerPeer.backgroundServeFiles();
+				if (serverRunning) {
+					commandSucceeded = controllerDir.registerFileServer(controllerPeer.getServerPort());
+				}
+				
+			}else {
+				System.err.println("Debes iniciar sesion antes de lanzar un servidor de ficheros.");
 			}
 			break;
 		case NFCommands.COM_STOP_SERVER:

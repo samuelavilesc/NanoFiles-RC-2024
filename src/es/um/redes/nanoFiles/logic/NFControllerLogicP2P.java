@@ -6,6 +6,7 @@ import java.net.InetSocketAddress;
 import java.util.LinkedList;
 
 import es.um.redes.nanoFiles.tcp.client.NFConnector;
+import es.um.redes.nanoFiles.tcp.server.NFServer;
 import es.um.redes.nanoFiles.tcp.server.NFServerSimple;
 
 public class NFControllerLogicP2P {
@@ -13,8 +14,10 @@ public class NFControllerLogicP2P {
 	 * TODO: Para bgserve, se necesita un atributo NFServer que actuará como
 	 * servidor de ficheros en segundo plano de este peer
 	 */
+	private NFServer bgserver;
 
 	protected NFControllerLogicP2P() {
+		this.bgserver=null;
 	}
 
 	/**
@@ -30,7 +33,6 @@ public class NFControllerLogicP2P {
 			NFServerSimple simple = new NFServerSimple();
 			simple.run();
 		} catch (IOException e) {
-			e.printStackTrace();
 			System.err.println("Hubo un problema con la creacion del NFServerSimple");
 		}
 		/*
@@ -57,13 +59,28 @@ public class NFControllerLogicP2P {
 		 * comprobar que el servidor está escuchando en un puerto válido (>0) e imprimir
 		 * mensaje informando sobre el puerto, y devolver verdadero.
 		 */
+		boolean success = false;
+		if(this.bgserver==null) {
+			try {
+				this.bgserver= new NFServer();
+				bgserver.start();
+				if(bgserver.getServerPort()>0) {
+					System.out.println("Servidor iniciado correctamente, puerto: "+bgserver.getServerPort());
+					success=true;
+				}
+			} catch (IOException e) {
+				System.err.println("Hubo un problema con la creacion del NFServer");
+			}
+		}else {
+			System.err.println("Ya existe un objeto NFServer creado previamente.");
+		}
 		/*
 		 * TODO: Las excepciones que puedan lanzarse deben ser capturadas y tratadas en
 		 * este método. Si se produce una excepción de entrada/salida (error del que no
 		 * es posible recuperarse), se debe informar sin abortar el programa
 		 */
 
-		return false;
+		return success;
 	}
 
 	/**
@@ -153,6 +170,9 @@ public class NFControllerLogicP2P {
 		 * TODO: Devolver el puerto de escucha de nuestro servidor de ficheros en
 		 * segundo plano
 		 */
+		if(this.bgserver!=null) {
+			port=bgserver.getServerPort();
+		}
 
 		return port;
 	}
@@ -165,6 +185,9 @@ public class NFControllerLogicP2P {
 		/*
 		 * TODO: Enviar señal para detener nuestro servidor de ficheros en segundo plano
 		 */
+		this.bgserver.stopServer();
+		this.bgserver=null;
+		System.out.println("Servidor detenido correctamente.");
 
 	}
 

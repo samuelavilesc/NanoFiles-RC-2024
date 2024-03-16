@@ -35,6 +35,10 @@ public class NFDirectoryServer {
 	 * 
 	 */
 	private HashMap<Integer, String> sessionKeys;
+	/* 
+	 * Estructuras para guardar las claves de inicio de sesion y sus puertos si son servidor. 
+	 */
+	private HashMap<Integer, Integer> sessionPorts;
 	/*
 	 * TODO: Añadir aquí como atributos las estructuras de datos que sean necesarias
 	 * para mantener en el directorio cualquier información necesaria para la
@@ -70,6 +74,7 @@ public class NFDirectoryServer {
 		 */
 		this.nicks = new HashMap<>();
 		this.sessionKeys = new HashMap<>();
+		this.sessionPorts = new HashMap<>();
 
 		if (NanoFiles.testMode) {
 			if (socket == null || nicks == null || sessionKeys == null) {
@@ -250,13 +255,40 @@ public class NFDirectoryServer {
 		case DirMessageOps.OPERATION_USERLIST:{
 			String userList="";
 			for(String user : this.nicks.keySet()) {
+				int userKey=this.nicks.get(user);
+				if(this.sessionPorts.containsKey(userKey)) {
+					user="!"+user;
+				}
 				if(userList.equals("")) {
 					userList=user;
 				}else {
 				userList=userList+DELIMITER+user;
 				}
 			}
+			
 			response= new DirMessage(DirMessageOps.OPERATION_USERLIST,userList);
+			break;
+			
+		}
+		case DirMessageOps.OPERATION_REGISTER_FILESERVER:{
+			int port = msg.getPort();
+			if(!sessionPorts.containsKey(msg.getSession_key())) {
+				this.sessionPorts.put(msg.getSession_key(), port);
+				response= new DirMessage(DirMessageOps.CODE_REGSERVER_OK);
+			}else {
+				response= new DirMessage(DirMessageOps.CODE_UNREGSERVER_FAILED);
+			}
+			break;
+			
+		}
+		case DirMessageOps.OPERATION_UNREGISTER_FILESERVER:{
+			int key= msg.getSession_key();
+			if(sessionPorts.containsKey(key)) {
+				this.sessionPorts.remove(key);
+				response= new DirMessage(DirMessageOps.CODE_UNREGSERVER_OK);
+			}else {
+				response= new DirMessage(DirMessageOps.CODE_UNREGSERVER_FAILED);
+			}
 			break;
 			
 		}
