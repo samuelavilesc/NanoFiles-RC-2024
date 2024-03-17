@@ -21,14 +21,14 @@ public class DirMessage {
 
 	private static final char DELIMITER = ':'; // Define el delimitador
 	private static final char END_LINE = '\n'; // Define el carácter de fin de línea
-
+	private static final String IPDELIMITER = ":";
 	/**
 	 * Nombre del campo que define el tipo de mensaje (primera línea)
 	 */
 	private static final String FIELDNAME_OPERATION = "operation";
 	private static final String FIELDNAME_NICKNAME = "nickname";
 	private static final String FIELDNAME_SESSIONKEY = "session_key";
-	private static final String FIELDNAME_PORT = "port";
+	private static final String FIELDNAME_hostname = "hostname";
 
 	/*
 	 * TODO: Definir de manera simbólica los nombres de todos los campos que pueden
@@ -45,13 +45,13 @@ public class DirMessage {
 	 */
 	private String nickname;
 	private int session_key;
-	private int port;
+	private String hostname;
 
 	public DirMessage(String op) {
 		operation = op;
 		nickname = null;
 		session_key = -1;
-		port=-1;
+		hostname=null;
 	}
 
 	/*
@@ -62,7 +62,7 @@ public class DirMessage {
 		this.nickname = nickname;
 		operation = op;
 		session_key = -1;
-		port=-1;
+		hostname=null;
 	}
 
 	/*
@@ -73,17 +73,17 @@ public class DirMessage {
 		operation = op;
 		nickname = null;
 		this.session_key = session_key;
-		port=-1;
+		hostname=null;
 	}
 	/*
 	 * Constructor para dar de alta servidor
 	 * 
 	 */
-	public DirMessage(String op, int session_key, int port) {
+	public DirMessage(String op, int session_key, String hostname) {
 		operation = op;
 		nickname = null;
 		this.session_key = session_key;
-		this.port=port;
+		this.hostname=hostname;
 	}
 
 	public int getSession_key() {
@@ -98,15 +98,18 @@ public class DirMessage {
 	 * TODO: Crear diferentes constructores adecuados para construir mensajes de
 	 * diferentes tipos con sus correspondientes argumentos (campos del mensaje)
 	 */
-	public int getPort() {
-		return port;
+	public String getHostname() {
+		return hostname;
 	}
 
-	public void setPort(int port) {
-		this.port = port;
+	public void setHostname(String hostname) {
+		this.hostname = hostname;
 	}
 	public String getOperation() {
 		return operation;
+	}
+	public int getPort() {
+		return Integer.parseInt(this.hostname.split(IPDELIMITER)[1]);
 	}
 
 	public void setNickname(String nick) {
@@ -166,11 +169,11 @@ public class DirMessage {
 				}
 				break;
 			}
-			case FIELDNAME_PORT: {
-				if (m != null && Integer.parseInt(value) != -1) {
+			case FIELDNAME_hostname: {
+				if (m != null && value != null) {
 					
 				}
-				m.setPort(Integer.parseInt(value));
+				m.setHostname(value);
 				break;
 			}
 
@@ -197,7 +200,7 @@ public class DirMessage {
 		sb.append(FIELDNAME_OPERATION + DELIMITER + operation + END_LINE); // Construimos el campo
 		sb.append(FIELDNAME_NICKNAME + DELIMITER + nickname + END_LINE);
 		sb.append(FIELDNAME_SESSIONKEY + DELIMITER + session_key + END_LINE);
-		sb.append(FIELDNAME_PORT + DELIMITER + port + END_LINE);
+		sb.append(FIELDNAME_hostname + DELIMITER + hostname + END_LINE);
 		/*
 		 * TODO: En función del tipo de mensaje, crear una cadena con el tipo y
 		 * concatenar el resto de campos necesarios usando los valores de los atributos
@@ -209,4 +212,3 @@ public class DirMessage {
 	}
 
 }
-

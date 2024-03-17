@@ -47,6 +47,7 @@ public class DirectoryConnector {
 	 * Dirección de socket del directorio (IP:puertoUDP)
 	 */
 	private static final String DELIMITER="&";
+	private static final String IPHOSTDELIMITER=":";
 	private InetSocketAddress directoryAddress;
 
 	private int sessionKey = INVALID_SESSION_KEY;
@@ -294,10 +295,10 @@ public class DirectoryConnector {
 	 * @return Verdadero si el directorio acepta que este peer se convierta en
 	 *         servidor.
 	 */
-	public boolean registerServerPort(int serverPort) {
+	public boolean registerServerPort(String hostname) {
 		// TODO: Ver TODOs en logIntoDirectory y seguir esquema similar
 		boolean success = false;
-		DirMessage messageToServer = new DirMessage(DirMessageOps.OPERATION_REGISTER_FILESERVER,this.sessionKey,serverPort);
+		DirMessage messageToServer = new DirMessage(DirMessageOps.OPERATION_REGISTER_FILESERVER,this.sessionKey,hostname);
 		byte[] dataToServer = new byte[DirMessage.PACKET_MAX_SIZE];
 		dataToServer=messageToServer.toString().getBytes();
 		byte[] dataFromServer = sendAndReceiveDatagrams(dataToServer);
@@ -334,7 +335,16 @@ public class DirectoryConnector {
 	public InetSocketAddress lookupServerAddrByUsername(String nick) {
 		InetSocketAddress serverAddr = null;
 		// TODO: Ver TODOs en logIntoDirectory y seguir esquema similar
-
+		DirMessage messageToServer = new DirMessage(DirMessageOps.OPERATION_GETIP,nick);
+		byte[] dataToServer = new byte[DirMessage.PACKET_MAX_SIZE];
+		dataToServer=messageToServer.toString().getBytes();
+		byte[] dataFromServer = sendAndReceiveDatagrams(dataToServer);
+		String messageFromServer = new String(dataFromServer, 0, dataFromServer.length);
+		DirMessage responseFromServer= DirMessage.fromString(messageFromServer);
+		if(responseFromServer.getOperation().equals(DirMessageOps.CODE_GETIPOK)) {
+			String[] ipHost = responseFromServer.getHostname().split(IPHOSTDELIMITER);
+			serverAddr = new InetSocketAddress(ipHost[0],Integer.parseInt(ipHost[1]));
+		}
 		return serverAddr;
 	}
 

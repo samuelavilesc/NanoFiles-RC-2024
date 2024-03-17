@@ -1,6 +1,7 @@
 package es.um.redes.nanoFiles.tcp.server;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
@@ -25,6 +26,9 @@ public class NFServer extends Thread {
 	}
 	public int getServerPort() {
 		return this.serverSocket.getLocalPort();
+	}
+	public InetAddress getServerAddress() {
+		return this.serverSocket.getInetAddress();
 	}
 	public void stopServer() {
 		this.stopServer=true;

@@ -10,9 +10,12 @@ public class DirMessageOps {
 	public static final String OPERATION_LOGIN = "login";
 	public static final String OPERATION_LOGOUT = "logout";
 	public static final String OPERATION_USERLIST = "userlist";
+	public static final String OPERATION_GETIP = "getip";
 	public static final String OPERATION_REGISTER_FILESERVER = "reg_fileserver";
 	public static final String OPERATION_UNREGISTER_FILESERVER = "unreg_fileserver";
 	public static final String CODE_LOGINOK = "loginok";
+	public static final String CODE_GETIPOK = "getipok";
+	public static final String CODE_GETIPFAILED = "getipfailed";
 	public static final String CODE_REGSERVER_OK = "regserver_ok";
 	public static final String CODE_REGSERVER_FAILED = "regserver_failed";
 	public static final String CODE_UNREGSERVER_OK = "unregserver_ok";

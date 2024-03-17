@@ -156,7 +156,7 @@ public class NFControllerLogicDir {
 	 *                   ficheros
 	 */
 
-	public boolean registerFileServer(int serverPort) {
+	public boolean registerFileServer(String serverHostname) {
 		/*
 		 * TODO: Darse de alta en el directorio como servidor. Comunicarse con el
 		 * directorio (a través del directoryConnector) para enviar el número de puerto
@@ -165,7 +165,7 @@ public class NFControllerLogicDir {
 		 * éxito/fracaso de la operación.
 		 */
 		boolean result = false;
-		this.directoryConnector.registerServerPort(serverPort);
+		this.directoryConnector.registerServerPort(serverHostname);
 		return result;
 	}
 
@@ -205,6 +205,7 @@ public class NFControllerLogicDir {
 		 * IP:puerto válidos), se debe devolver null.
 		 */
 		InetSocketAddress serverAddr = null;
+		serverAddr = this.directoryConnector.lookupServerAddrByUsername(nickname);
 
 		return serverAddr;
 	}

@@ -36,9 +36,9 @@ public class NFDirectoryServer {
 	 */
 	private HashMap<Integer, String> sessionKeys;
 	/* 
-	 * Estructuras para guardar las claves de inicio de sesion y sus puertos si son servidor. 
+	 * Estructuras para guardar las claves de inicio de sesion y hostname son servidor. 
 	 */
-	private HashMap<Integer, Integer> sessionPorts;
+	private HashMap<Integer, String> sessionHostnames;
 	/*
 	 * TODO: Añadir aquí como atributos las estructuras de datos que sean necesarias
 	 * para mantener en el directorio cualquier información necesaria para la
@@ -74,7 +74,7 @@ public class NFDirectoryServer {
 		 */
 		this.nicks = new HashMap<>();
 		this.sessionKeys = new HashMap<>();
-		this.sessionPorts = new HashMap<>();
+		this.sessionHostnames = new HashMap<>();
 
 		if (NanoFiles.testMode) {
 			if (socket == null || nicks == null || sessionKeys == null) {
@@ -248,6 +248,7 @@ public class NFDirectoryServer {
 				username=this.sessionKeys.get(msg.getSession_key());
 				this.nicks.remove(username);
 				this.sessionKeys.remove(msg.getSession_key());
+				this.sessionHostnames.remove(msg.getSession_key());
 			}
 			break;
 			
@@ -256,7 +257,7 @@ public class NFDirectoryServer {
 			String userList="";
 			for(String user : this.nicks.keySet()) {
 				int userKey=this.nicks.get(user);
-				if(this.sessionPorts.containsKey(userKey)) {
+				if(this.sessionHostnames.containsKey(userKey)) {
 					user="!"+user;
 				}
 				if(userList.equals("")) {
@@ -271,9 +272,9 @@ public class NFDirectoryServer {
 			
 		}
 		case DirMessageOps.OPERATION_REGISTER_FILESERVER:{
-			int port = msg.getPort();
-			if(!sessionPorts.containsKey(msg.getSession_key())) {
-				this.sessionPorts.put(msg.getSession_key(), port);
+			String hostname = msg.getHostname();
+			if(!sessionHostnames.containsKey(msg.getSession_key())) {
+				this.sessionHostnames.put(msg.getSession_key(), hostname);
 				response= new DirMessage(DirMessageOps.CODE_REGSERVER_OK);
 			}else {
 				response= new DirMessage(DirMessageOps.CODE_UNREGSERVER_FAILED);
@@ -283,8 +284,8 @@ public class NFDirectoryServer {
 		}
 		case DirMessageOps.OPERATION_UNREGISTER_FILESERVER:{
 			int key= msg.getSession_key();
-			if(sessionPorts.containsKey(key)) {
-				this.sessionPorts.remove(key);
+			if(sessionHostnames.containsKey(key)) {
+				this.sessionHostnames.remove(key);
 				response= new DirMessage(DirMessageOps.CODE_UNREGSERVER_OK);
 			}else {
 				response= new DirMessage(DirMessageOps.CODE_UNREGSERVER_FAILED);
@@ -292,7 +293,18 @@ public class NFDirectoryServer {
 			break;
 			
 		}
-
+		case DirMessageOps.OPERATION_GETIP:{
+			int key= this.nicks.get(msg.getNickname());
+			if(sessionHostnames.containsKey(key)) {
+				String hostname = this.sessionHostnames.get(key);
+				response= new DirMessage(DirMessageOps.CODE_GETIPOK);
+				response.setHostname(hostname);
+			}else {
+				response= new DirMessage(DirMessageOps.CODE_GETIPFAILED);
+			}
+			break;
+			
+		}
 		default:
 			System.out.println("Unexpected message operation: \"" + operation + "\"");
 		}

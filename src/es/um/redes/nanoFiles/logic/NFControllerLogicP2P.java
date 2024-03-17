@@ -2,6 +2,7 @@ package es.um.redes.nanoFiles.logic;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.LinkedList;
 
@@ -15,7 +16,7 @@ public class NFControllerLogicP2P {
 	 * servidor de ficheros en segundo plano de este peer
 	 */
 	private NFServer bgserver;
-
+	
 	protected NFControllerLogicP2P() {
 		this.bgserver=null;
 	}
@@ -24,17 +25,15 @@ public class NFControllerLogicP2P {
 	 * Método para arrancar un servidor de ficheros en primer plano.
 	 * 
 	 */
-	protected void foregroundServeFiles() {
+	protected void foregroundServeFiles(NFControllerLogicDir controllerDir) {
 		/*
 		 * TODO: Crear objeto servidor NFServerSimple y ejecutarlo en primer plano.
 		 * 
 		 */
-		try {
 			NFServerSimple simple = new NFServerSimple();
+			controllerDir.registerFileServer(simple.getHostname().getHostName()+":"+simple.getPort()); //aviso al directorio del puerto de escucha
 			simple.run();
-		} catch (IOException e) {
-			System.err.println("Hubo un problema con la creacion del NFServerSimple");
-		}
+			
 		/*
 		 * TODO: Las excepciones que puedan lanzarse deben ser capturadas y tratadas en
 		 * este método. Si se produce una excepción de entrada/salida (error del que no
@@ -176,7 +175,9 @@ public class NFControllerLogicP2P {
 
 		return port;
 	}
-
+	public InetAddress getServerAddress() {
+		return this.bgserver.getServerAddress();
+	}
 	/**
 	 * Método para detener nuestro servidor de ficheros en segundo plano
 	 * 
