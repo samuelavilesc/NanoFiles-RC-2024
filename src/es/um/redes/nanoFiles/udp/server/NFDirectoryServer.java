@@ -7,6 +7,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Random;
 
@@ -183,7 +184,7 @@ public class NFDirectoryServer {
 						DirMessage response = null;
 							for(FileInfo file : files) {
 								 response = new DirMessage(DirMessageOps.OPERATION_FILEINFO);
-								response.setFileInfo(file.fileName + DELIMITER + file.fileSize + DELIMITER + file.fileHash);
+								response.setFileInfo(file.fileName + DELIMITER + file.fileSize + DELIMITER + file.fileHash+ DELIMITER +file.filePath);
 								String responseToSend = response.toString();
 								DatagramPacket packetToClient = new DatagramPacket(responseToSend.getBytes(),
 										responseToSend.getBytes().length,clientAddr);
@@ -400,15 +401,19 @@ public class NFDirectoryServer {
 		}
 		case DirMessageOps.OPERATION_FILEINFO:{
 			int key= msg.getSession_key();
+			String username = this.sessionKeys.get(key);
 			FileInfo file = FileInfo.fromString(msg.getFileInfo());
+			file.filePath=username;
 			this.sessionFiles.computeIfAbsent(key, k -> new LinkedList<>()).add(file);
-			boolean contains=false;
-			for(FileInfo f : files) {
+			Iterator<FileInfo> it = files.iterator();
+			while(it.hasNext()) {
+				FileInfo f = it.next();
 				if(f.fileHash.equals(file.fileHash)) {
-					contains=true;
-				}
+					file.filePath=f.filePath + ","+username;
+					it.remove();
+					}
 			}
-			if(!contains) files.add(file);
+			files.add(file);
 			response= new DirMessage(DirMessageOps.CODE_FILEINFOOK);
 
 			break;
@@ -417,6 +422,20 @@ public class NFDirectoryServer {
 		case DirMessageOps.OPERATION_PUBLISH_END:{
 			response= new DirMessage(DirMessageOps.CODE_PUBLISHOK);
 			break;
+		}
+		case DirMessageOps.OPERATION_GET_NICKLIST:{
+			FileInfo[] filesToSearch = new FileInfo[files.size()];
+			files.toArray(filesToSearch);
+				FileInfo[] coincidencia = FileInfo.lookupHashSubstring(filesToSearch, msg.getFileInfo());
+				if(coincidencia.length>1 || coincidencia.length==0) {
+					//hash ambiguo hay que decirlo al cliente
+					response = new DirMessage(DirMessageOps.CODE_HASH_NOT_FOUND);
+					break;
+				}
+				response=new DirMessage(DirMessageOps.OPERATION_GET_NICKLIST);
+				response.setFileInfo(coincidencia[0].filePath);
+				break;
+				
 		}
 		default:
 			System.out.println("Unexpected message operation: \"" + operation + "\"");

@@ -30,6 +30,9 @@ public class FileInfo {
 		strBuf.append(String.format("%1$-30s", fileName));
 		strBuf.append(String.format("%1$10s", fileSize));
 		strBuf.append(String.format(" %1$-45s", fileHash));
+		if(filePath!=null) {
+			strBuf.append(String.format(" %1$-45s", filePath));
+		}
 		return strBuf.toString();
 	}
 	public static FileInfo fromString(String file) {
@@ -38,6 +41,9 @@ public class FileInfo {
 		aux.fileHash=info[2];
 		aux.fileName=info[0];
 		aux.fileSize=Long.parseLong(info[1]);
+		if(info.length==4) {
+			aux.filePath=info[3];
+		}
 		return aux;
 	}
 	public static void printToSysout(FileInfo[] files) {
@@ -45,6 +51,17 @@ public class FileInfo {
 		strBuf.append(String.format("%1$-30s", "Name"));
 		strBuf.append(String.format("%1$10s", "Size"));
 		strBuf.append(String.format(" %1$-45s", "Hash"));
+		System.out.println(strBuf);
+		for (FileInfo file : files) {
+			System.out.println(file);
+		}
+	}
+	public static void printToSysoutWithPath(FileInfo[] files) {
+		StringBuffer strBuf = new StringBuffer();
+		strBuf.append(String.format("%1$-30s", "Name"));
+		strBuf.append(String.format("%1$10s", "Size"));
+		strBuf.append(String.format(" %1$-45s", "Hash"));
+		strBuf.append(String.format(" %1$-35s", "Sever providing"));
 		System.out.println(strBuf);
 		for (FileInfo file : files) {
 			System.out.println(file);

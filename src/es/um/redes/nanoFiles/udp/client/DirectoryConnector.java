@@ -479,6 +479,18 @@ public class DirectoryConnector {
 	public String[] getServerNicknamesSharingThisFile(String fileHash) {
 		String[] nicklist = null;
 		// TODO: Ver TODOs en logIntoDirectory y seguir esquema similar
+		DirMessage messageToServer = new DirMessage(DirMessageOps.OPERATION_GET_NICKLIST);
+		messageToServer.setFileInfo(fileHash);
+		byte[] dataToServer = new byte[DirMessage.PACKET_MAX_SIZE];
+		dataToServer = messageToServer.toString().getBytes();
+		byte[] dataFromServer = sendAndReceiveDatagrams(dataToServer);
+		String messageFromServer = new String(dataFromServer, 0, dataFromServer.length);
+		DirMessage responseFromServer = DirMessage.fromString(messageFromServer);
+		if (responseFromServer.getOperation().equals(DirMessageOps.OPERATION_GET_NICKLIST)) {
+			nicklist = responseFromServer.getFileInfo().split(",");
+		}else {
+			System.err.println("Hubo algun problema identificando el fichero con su hash.");
+		}
 
 		return nicklist;
 	}

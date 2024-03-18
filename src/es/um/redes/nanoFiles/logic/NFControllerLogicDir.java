@@ -146,7 +146,7 @@ public class NFControllerLogicDir {
 		boolean result = false;
 		FileInfo[] files = this.directoryConnector.getFileList();
 		if(files.length!=0) {
-			FileInfo.printToSysout(files);
+			FileInfo.printToSysoutWithPath(files);
 			result=true;
 		}
 		
@@ -270,7 +270,13 @@ public class NFControllerLogicDir {
 		 * operación.
 		 */
 		boolean result = false;
-
+		String[] nicks =this.directoryConnector.getServerNicknamesSharingThisFile(fileHashSubstring);
+		if(nicks!=null) {
+			System.out.println("Servidores encontrados que tienen disponible el fichero:");
+			for(String nick : nicks) {
+				System.out.println(nick);
+			}
+		}
 		return result;
 	}
 
