@@ -13,7 +13,7 @@ public class FileInfo {
 	public String fileName;
 	public String filePath;
 	public long fileSize = -1;
-
+	private static final String DELIMITER = "&";
 	public FileInfo(String hash, String name, long size, String path) {
 		fileHash = hash;
 		fileName = name;
@@ -32,7 +32,14 @@ public class FileInfo {
 		strBuf.append(String.format(" %1$-45s", fileHash));
 		return strBuf.toString();
 	}
-
+	public static FileInfo fromString(String file) {
+		String[] info = file.split(DELIMITER);
+		FileInfo aux = new FileInfo();
+		aux.fileHash=info[2];
+		aux.fileName=info[0];
+		aux.fileSize=Long.parseLong(info[1]);
+		return aux;
+	}
 	public static void printToSysout(FileInfo[] files) {
 		StringBuffer strBuf = new StringBuffer();
 		strBuf.append(String.format("%1$-30s", "Name"));

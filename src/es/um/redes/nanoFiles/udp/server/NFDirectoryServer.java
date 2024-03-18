@@ -39,7 +39,19 @@ public class NFDirectoryServer {
 	 * Estructuras para guardar las claves de inicio de sesion y hostname son servidor. 
 	 */
 	private HashMap<Integer, String> sessionHostnames;
+	
 	/*
+	 * Estructura para guardar las session keys y los ficheros asociados a esa session key
+	 */
+	private HashMap<Integer, LinkedList<FileInfo>> sessionFiles;
+	
+	/*
+	 * 
+	 * Lista con todos los ficheros que hay.
+	 */
+	private LinkedList<FileInfo> files;
+	/*
+	 *
 	 * TODO: Añadir aquí como atributos las estructuras de datos que sean necesarias
 	 * para mantener en el directorio cualquier información necesaria para la
 	 * funcionalidad del sistema nanoFilesP2P: ficheros publicados, servidores
@@ -75,6 +87,8 @@ public class NFDirectoryServer {
 		this.nicks = new HashMap<>();
 		this.sessionKeys = new HashMap<>();
 		this.sessionHostnames = new HashMap<>();
+		this.sessionFiles = new HashMap<>();
+		this.files = new LinkedList<>();
 
 		if (NanoFiles.testMode) {
 			if (socket == null || nicks == null || sessionKeys == null) {
@@ -165,25 +179,54 @@ public class NFDirectoryServer {
 					 * sus atributos los valores del mensaje (fromString).
 					 */
 					DirMessage dirMessageFromClient = DirMessage.fromString(messageFromClient);
-					DirMessage responseToClient = buildResponseFromRequest(dirMessageFromClient, clientAddr);
-					/*
-					 * TODO: Llamar a buildResponseFromRequest para construir, a partir del objeto
-					 * DirMessage con los valores del mensaje de petición recibido, un nuevo objeto
-					 * DirMessage con el mensaje de respuesta a enviar. Los atributos del objeto
-					 * DirMessage de respuesta deben haber sido establecidos con los valores
-					 * adecuados para los diferentes campos del mensaje (operation, etc.)
-					 */
-					String responseToSend = responseToClient.toString();
-					DatagramPacket packetToClient = new DatagramPacket(responseToSend.getBytes(),
-							responseToSend.getBytes().length,clientAddr);
-					socket.send(packetToClient);
-					/*
-					 * TODO: Convertir en string el objeto DirMessage con el mensaje de respuesta a
-					 * enviar, extraer los bytes en que se codifica el string (getBytes), y
-					 * finalmente enviarlos en un datagrama
-					 */
+					if(dirMessageFromClient.getOperation().equals(DirMessageOps.OPERATION_GET_FILELIST)) {
+						DirMessage response = null;
+							for(FileInfo file : files) {
+								 response = new DirMessage(DirMessageOps.OPERATION_FILEINFO);
+								response.setFileInfo(file.fileName + DELIMITER + file.fileSize + DELIMITER + file.fileHash);
+								String responseToSend = response.toString();
+								DatagramPacket packetToClient = new DatagramPacket(responseToSend.getBytes(),
+										responseToSend.getBytes().length,clientAddr);
+								try {
+									socket.send(packetToClient);
+								} catch (IOException e) {
+									e.printStackTrace();
+								}
+					}
+						//por cada fichero envio un paquete al cliente
 
-				}
+						//cuando termine envio un ultimo paquete diciendo que he terminado
+						response = new DirMessage(DirMessageOps.CODE_FILELISTOK);
+						String responseToSend = response.toString();
+						DatagramPacket packetToClient = new DatagramPacket(responseToSend.getBytes(),
+								responseToSend.getBytes().length,clientAddr);
+						try {
+							socket.send(packetToClient);
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+					}else {
+						DirMessage responseToClient = buildResponseFromRequest(dirMessageFromClient, clientAddr);
+						/*
+						 * TODO: Llamar a buildResponseFromRequest para construir, a partir del objeto
+						 * DirMessage con los valores del mensaje de petición recibido, un nuevo objeto
+						 * DirMessage con el mensaje de respuesta a enviar. Los atributos del objeto
+						 * DirMessage de respuesta deben haber sido establecidos con los valores
+						 * adecuados para los diferentes campos del mensaje (operation, etc.)
+						 */
+						String responseToSend = responseToClient.toString();
+						DatagramPacket packetToClient = new DatagramPacket(responseToSend.getBytes(),
+								responseToSend.getBytes().length,clientAddr);
+						socket.send(packetToClient);
+						/*
+						 * TODO: Convertir en string el objeto DirMessage con el mensaje de respuesta a
+						 * enviar, extraer los bytes en que se codifica el string (getBytes), y
+						 * finalmente enviarlos en un datagrama
+						 */
+
+					}
+					}
+					
 			} else {
 				System.err.println("Directory ignores EMPTY datagram from " + clientAddr);
 			}
@@ -242,13 +285,34 @@ public class NFDirectoryServer {
 		}
 		case DirMessageOps.OPERATION_LOGOUT:{
 			String username=null;
+			int key = msg.getSession_key();
 			//si ya se encuentra en el keySet de nicks devolver loginfailed
-			if(this.sessionKeys.containsKey(msg.getSession_key())) {
+			if(this.sessionKeys.containsKey(key)) {
 				response= new DirMessage(DirMessageOps.CODE_LOGOUTOK);
-				username=this.sessionKeys.get(msg.getSession_key());
+				username=this.sessionKeys.get(key);
 				this.nicks.remove(username);
-				this.sessionKeys.remove(msg.getSession_key());
-				this.sessionHostnames.remove(msg.getSession_key());
+				this.sessionKeys.remove(key);
+				this.sessionHostnames.remove(key);
+				LinkedList<FileInfo> files = this.sessionFiles.get(key);
+				if(files!=null) {
+				for (FileInfo file : files) {
+					boolean repeated=false;
+					for(LinkedList<FileInfo> checkFiles :this.sessionFiles.values()) {
+						if(checkFiles.equals(files)) {
+							continue;
+						}
+						for(FileInfo f : checkFiles) {
+							if(f.fileHash.equals(file.fileHash)) {
+								repeated=true;
+							}
+						}
+						
+					}
+					if(!repeated) this.files.remove(file);
+					
+				}
+				this.sessionFiles.remove(key);
+				}
 			}
 			break;
 			
@@ -286,6 +350,25 @@ public class NFDirectoryServer {
 			int key= msg.getSession_key();
 			if(sessionHostnames.containsKey(key)) {
 				this.sessionHostnames.remove(key);
+				LinkedList<FileInfo> files = this.sessionFiles.get(key);
+				for (FileInfo file : files) {
+					boolean repeated=false;
+					for(LinkedList<FileInfo> checkFiles :this.sessionFiles.values()) {
+						if(checkFiles.equals(files)) {
+							continue;
+						}
+						for(FileInfo f : checkFiles) {
+							if(f.fileHash.equals(file.fileHash)) {
+								repeated=true;
+							}
+						}
+						
+					}
+					if(!repeated) this.files.remove(file);
+					
+				}
+				this.sessionFiles.remove(key);
+				
 				response= new DirMessage(DirMessageOps.CODE_UNREGSERVER_OK);
 			}else {
 				response= new DirMessage(DirMessageOps.CODE_UNREGSERVER_FAILED);
@@ -304,6 +387,36 @@ public class NFDirectoryServer {
 			}
 			break;
 			
+		}
+		case DirMessageOps.OPERATION_PUBLISH:{
+			int key= msg.getSession_key();
+			if(sessionHostnames.containsKey(key)) {
+				response= new DirMessage(DirMessageOps.CODE_PUBLISHOK);
+			}else {
+				response= new DirMessage(DirMessageOps.CODE_PUBLISH_FAILED);
+			}
+			break;
+			
+		}
+		case DirMessageOps.OPERATION_FILEINFO:{
+			int key= msg.getSession_key();
+			FileInfo file = FileInfo.fromString(msg.getFileInfo());
+			this.sessionFiles.computeIfAbsent(key, k -> new LinkedList<>()).add(file);
+			boolean contains=false;
+			for(FileInfo f : files) {
+				if(f.fileHash.equals(file.fileHash)) {
+					contains=true;
+				}
+			}
+			if(!contains) files.add(file);
+			response= new DirMessage(DirMessageOps.CODE_FILEINFOOK);
+
+			break;
+			
+		}
+		case DirMessageOps.OPERATION_PUBLISH_END:{
+			response= new DirMessage(DirMessageOps.CODE_PUBLISHOK);
+			break;
 		}
 		default:
 			System.out.println("Unexpected message operation: \"" + operation + "\"");

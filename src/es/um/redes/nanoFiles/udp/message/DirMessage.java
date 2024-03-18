@@ -28,7 +28,8 @@ public class DirMessage {
 	private static final String FIELDNAME_OPERATION = "operation";
 	private static final String FIELDNAME_NICKNAME = "nickname";
 	private static final String FIELDNAME_SESSIONKEY = "session_key";
-	private static final String FIELDNAME_hostname = "hostname";
+	private static final String FIELDNAME_HOSTNAME = "hostname";
+	private static final String FIELDNAME_FILEINFO = "fileinfo";
 
 	/*
 	 * TODO: Definir de manera simbólica los nombres de todos los campos que pueden
@@ -46,12 +47,14 @@ public class DirMessage {
 	private String nickname;
 	private int session_key;
 	private String hostname;
+	private String fileInfo;
 
 	public DirMessage(String op) {
 		operation = op;
 		nickname = null;
 		session_key = -1;
 		hostname=null;
+		fileInfo=null;
 	}
 
 	/*
@@ -63,6 +66,7 @@ public class DirMessage {
 		operation = op;
 		session_key = -1;
 		hostname=null;
+		fileInfo=null;
 	}
 
 	/*
@@ -74,6 +78,7 @@ public class DirMessage {
 		nickname = null;
 		this.session_key = session_key;
 		hostname=null;
+		fileInfo=null;
 	}
 	/*
 	 * Constructor para dar de alta servidor
@@ -84,6 +89,7 @@ public class DirMessage {
 		nickname = null;
 		this.session_key = session_key;
 		this.hostname=hostname;
+		fileInfo=null;
 	}
 
 	public int getSession_key() {
@@ -169,11 +175,18 @@ public class DirMessage {
 				}
 				break;
 			}
-			case FIELDNAME_hostname: {
+			case FIELDNAME_HOSTNAME: {
 				if (m != null && value != null) {
 					
 				}
 				m.setHostname(value);
+				break;
+			}
+			case FIELDNAME_FILEINFO: {
+				if (m != null && value != null) {
+					m.setFileInfo(value);	
+				}
+				
 				break;
 			}
 
@@ -200,7 +213,8 @@ public class DirMessage {
 		sb.append(FIELDNAME_OPERATION + DELIMITER + operation + END_LINE); // Construimos el campo
 		sb.append(FIELDNAME_NICKNAME + DELIMITER + nickname + END_LINE);
 		sb.append(FIELDNAME_SESSIONKEY + DELIMITER + session_key + END_LINE);
-		sb.append(FIELDNAME_hostname + DELIMITER + hostname + END_LINE);
+		sb.append(FIELDNAME_HOSTNAME + DELIMITER + hostname + END_LINE);
+		sb.append(FIELDNAME_FILEINFO + DELIMITER + fileInfo + END_LINE);
 		/*
 		 * TODO: En función del tipo de mensaje, crear una cadena con el tipo y
 		 * concatenar el resto de campos necesarios usando los valores de los atributos
@@ -209,6 +223,14 @@ public class DirMessage {
 
 		sb.append(END_LINE); // Marcamos el final del mensaje
 		return sb.toString();
+	}
+
+	public String getFileInfo() {
+		return fileInfo;
+	}
+
+	public void setFileInfo(String fileInfo) {
+		this.fileInfo = fileInfo;
 	}
 
 }

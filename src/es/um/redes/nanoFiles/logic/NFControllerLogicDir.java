@@ -144,7 +144,12 @@ public class NFControllerLogicDir {
 		 * operación.
 		 */
 		boolean result = false;
-
+		FileInfo[] files = this.directoryConnector.getFileList();
+		if(files.length!=0) {
+			FileInfo.printToSysout(files);
+			result=true;
+		}
+		
 		return result;
 	}
 
@@ -183,7 +188,7 @@ public class NFControllerLogicDir {
 		 * operación.
 		 */
 		boolean result = false;
-
+		this.directoryConnector.publishLocalFiles(NanoFiles.db.getFiles());
 		return result;
 	}
 

@@ -13,6 +13,14 @@ public class DirMessageOps {
 	public static final String OPERATION_GETIP = "getip";
 	public static final String OPERATION_REGISTER_FILESERVER = "reg_fileserver";
 	public static final String OPERATION_UNREGISTER_FILESERVER = "unreg_fileserver";
+	public static final String OPERATION_PUBLISH = "publish";
+	public static final String OPERATION_PUBLISH_END = "publish_end";
+	public static final String OPERATION_FILEINFO = "fileinfo";
+	public static final String OPERATION_GET_FILELIST = "get_filelist";	
+	public static final String CODE_FILEINFOOK = "fileinfook";
+	public static final String CODE_FILELISTOK = "filelistok";
+	public static final String CODE_PUBLISHOK = "publishok";
+	public static final String CODE_PUBLISH_FAILED = "publishfailed";
 	public static final String CODE_LOGINOK = "loginok";
 	public static final String CODE_GETIPOK = "getipok";
 	public static final String CODE_GETIPFAILED = "getipfailed";
