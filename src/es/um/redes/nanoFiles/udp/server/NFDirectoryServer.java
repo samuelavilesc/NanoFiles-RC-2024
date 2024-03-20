@@ -3,8 +3,10 @@ package es.um.redes.nanoFiles.udp.server;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -51,6 +53,8 @@ public class NFDirectoryServer {
 	 * Lista con todos los ficheros que hay.
 	 */
 	private LinkedList<FileInfo> files;
+	
+	private String addressClient;
 	/*
 	 *
 	 * TODO: Añadir aquí como atributos las estructuras de datos que sean necesarias
@@ -58,7 +62,7 @@ public class NFDirectoryServer {
 	 * funcionalidad del sistema nanoFilesP2P: ficheros publicados, servidores
 	 * registrados, etc.
 	 */
-	private static final String DELIMITER="&"; 
+	private static final String DELIMITER=","; 
 	/**
 	 * Generador de claves de sesión aleatorias (sessionKeys)
 	 */
@@ -124,8 +128,8 @@ public class NFDirectoryServer {
 			//  Establecemos 'clientAddr' con la dirección del cliente,
 			// obtenida del
 			// datagrama recibido
-			clientAddr = (InetSocketAddress) packetFromClient.getSocketAddress();
-
+			clientAddr = new InetSocketAddress(packetFromClient.getAddress(), packetFromClient.getPort());
+			addressClient=packetFromClient.getAddress().getHostAddress();
 			if (NanoFiles.testMode) {
 				if (receptionBuffer == null || clientAddr == null || dataLength < 0) {
 					System.err.println("NFDirectoryServer.run: code not yet fully functional.\n"
@@ -323,7 +327,7 @@ public class NFDirectoryServer {
 			for(String user : this.nicks.keySet()) {
 				int userKey=this.nicks.get(user);
 				if(this.sessionHostnames.containsKey(userKey)) {
-					user="!"+user;
+					user=user+"(server)";
 				}
 				if(userList.equals("")) {
 					userList=user;
@@ -337,7 +341,8 @@ public class NFDirectoryServer {
 			
 		}
 		case DirMessageOps.OPERATION_REGISTER_FILESERVER:{
-			String hostname = msg.getHostname();
+			String port = msg.getHostname();
+			String hostname = addressClient+DELIMITER+port;
 			if(!sessionHostnames.containsKey(msg.getSession_key())) {
 				this.sessionHostnames.put(msg.getSession_key(), hostname);
 				response= new DirMessage(DirMessageOps.CODE_REGSERVER_OK);
@@ -382,6 +387,7 @@ public class NFDirectoryServer {
 			if(sessionHostnames.containsKey(key)) {
 				String hostname = this.sessionHostnames.get(key);
 				response= new DirMessage(DirMessageOps.CODE_GETIPOK);
+
 				response.setHostname(hostname);
 			}else {
 				response= new DirMessage(DirMessageOps.CODE_GETIPFAILED);
@@ -409,7 +415,7 @@ public class NFDirectoryServer {
 			while(it.hasNext()) {
 				FileInfo f = it.next();
 				if(f.fileHash.equals(file.fileHash)) {
-					file.filePath=f.filePath + ","+username;
+					file.filePath=f.filePath + "DELIMITER"+username;
 					it.remove();
 					}
 			}

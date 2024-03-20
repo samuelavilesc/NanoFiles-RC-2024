@@ -57,7 +57,7 @@ public class NFController {
 	private String downloadTargetFileHash; // Hash del fichero a descargar (download)
 	private String downloadLocalFileName; // Nombre con el que se guardará el fichero descargado
 	private String downloadTargetServer; // nombre o IP:puerto del sevidor del que se descargará el fichero
-
+	private boolean serverOn;
 	// Constructor
 	public NFController() {
 		shell = new NFShell();
@@ -65,6 +65,7 @@ public class NFController {
 		controllerPeer = new NFControllerLogicP2P();
 		// Estado inicial del autómata
 		currentState = LOGGED_OUT;
+		serverOn=false;
 	}
 
 	/**
@@ -112,6 +113,10 @@ public class NFController {
 			 * Pedir al controllerDir que "cierre sesión" en el directorio para dar de baja
 			 * el nombre de usuario registrado (método doLogout).
 			 */
+			if(serverOn) {
+				controllerPeer.stopBackgroundFileServer();
+				controllerDir.unregisterFileServer();
+			}
 			commandSucceeded = controllerDir.doLogout();
 			break;
 		case NFCommands.COM_USERLIST:
@@ -162,7 +167,8 @@ public class NFController {
 			if(currentState==LOGGED_IN) {
 				boolean serverRunning = controllerPeer.backgroundServeFiles();
 				if (serverRunning) {
-					commandSucceeded = controllerDir.registerFileServer(controllerPeer.getServerAddress().getHostAddress()+":"+controllerPeer.getServerPort());
+					serverOn=true;
+					commandSucceeded = controllerDir.registerFileServer(""+controllerPeer.getServerPort());
 				}
 				
 			}else {
@@ -177,6 +183,7 @@ public class NFController {
 			 * unregisterFileServer).
 			 */
 			controllerPeer.stopBackgroundFileServer();
+			serverOn=false;
 			commandSucceeded = controllerDir.unregisterFileServer();
 			break;
 		case NFCommands.COM_DOWNLOADFROM:

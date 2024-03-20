@@ -31,7 +31,7 @@ public class NFControllerLogicP2P {
 		 * 
 		 */
 			NFServerSimple simple = new NFServerSimple();
-			controllerDir.registerFileServer(simple.getHostname().getHostName()+":"+simple.getPort()); //aviso al directorio del puerto de escucha
+			controllerDir.registerFileServer(""+simple.getPort()); //aviso al directorio del puerto de escucha
 			simple.run();
 			
 		/*

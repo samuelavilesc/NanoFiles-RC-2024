@@ -13,7 +13,7 @@ public class FileInfo {
 	public String fileName;
 	public String filePath;
 	public long fileSize = -1;
-	private static final String DELIMITER = "&";
+	private static final String DELIMITER = ",";
 	public FileInfo(String hash, String name, long size, String path) {
 		fileHash = hash;
 		fileName = name;

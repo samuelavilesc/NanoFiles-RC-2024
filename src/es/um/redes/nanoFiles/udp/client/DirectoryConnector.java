@@ -48,8 +48,7 @@ public class DirectoryConnector {
 	/**
 	 * Dirección de socket del directorio (IP:puertoUDP)
 	 */
-	private static final String DELIMITER = "&";
-	private static final String IPHOSTDELIMITER = ":";
+	private static final String DELIMITER = ",";
 	private InetSocketAddress directoryAddress;
 
 	private int sessionKey = INVALID_SESSION_KEY;
@@ -373,9 +372,12 @@ public class DirectoryConnector {
 		String messageFromServer = new String(dataFromServer, 0, dataFromServer.length);
 		DirMessage responseFromServer = DirMessage.fromString(messageFromServer);
 		if (responseFromServer.getOperation().equals(DirMessageOps.CODE_GETIPOK)) {
-			String[] ipHost = responseFromServer.getHostname().split(IPHOSTDELIMITER);
-			serverAddr = new InetSocketAddress(ipHost[0], Integer.parseInt(ipHost[1]));
+			String[] ipHost = responseFromServer.getHostname().split(DELIMITER);
+			System.out.println(ipHost[0]+ipHost[2]);
+			serverAddr = new InetSocketAddress(ipHost[0], Integer.parseInt(ipHost[2]));
+			
 		}
+		System.out.println(serverAddr.toString());
 		return serverAddr;
 	}
 

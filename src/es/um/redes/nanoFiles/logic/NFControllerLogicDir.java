@@ -119,7 +119,6 @@ public class NFControllerLogicDir {
 				for(String user: userList) {
 					System.out.println(user);
 				}
-				System.out.println("Los usuarios marcados con una '!' están registrados como servidor de ficheros.");
 			}else {
 				System.err.println("No existen usuarios activos en este momento.");
 			}
