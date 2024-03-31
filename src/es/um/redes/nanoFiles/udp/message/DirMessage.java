@@ -1,11 +1,6 @@
 package es.um.redes.nanoFiles.udp.message;
 
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.UnknownHostException;
-import java.util.LinkedList;
 
-import es.um.redes.nanoFiles.util.FileInfo;
 
 /**
  * Clase que modela los mensajes del protocolo de comunicación entre pares para
@@ -31,19 +26,13 @@ public class DirMessage {
 	private static final String FIELDNAME_HOSTNAME = "hostname";
 	private static final String FIELDNAME_FILEINFO = "fileinfo";
 
-	/*
-	 * TODO: Definir de manera simbólica los nombres de todos los campos que pueden
-	 * aparecer en los mensajes de este protocolo (formato campo:valor)
-	 */
+
 
 	/**
 	 * Tipo del mensaje, de entre los tipos definidos en PeerMessageOps.
 	 */
 	private String operation = DirMessageOps.OPERATION_INVALID;
-	/*
-	 * TODO: Crear un atributo correspondiente a cada uno de los campos de los
-	 * diferentes mensajes de este protocolo.
-	 */
+
 	private String nickname;
 	private int session_key;
 	private String hostname;
@@ -100,10 +89,7 @@ public class DirMessage {
 		this.session_key = session_key;
 	}
 
-	/*
-	 * TODO: Crear diferentes constructores adecuados para construir mensajes de
-	 * diferentes tipos con sus correspondientes argumentos (campos del mensaje)
-	 */
+
 	public String getHostname() {
 		return hostname;
 	}
@@ -138,16 +124,8 @@ public class DirMessage {
 	 *         etc.)
 	 */
 	public static DirMessage fromString(String message) {
-		/*
-		 * TODO: Usar un bucle para parsear el mensaje línea a línea, extrayendo para
-		 * cada línea el nombre del campo y el valor, usando el delimitador DELIMITER, y
-		 * guardarlo en variables locales.
-		 */
 
-		// System.out.println("DirMessage read from socket:");
-		// System.out.println(message);
 		String[] lines = message.split(END_LINE + "");
-		// Local variables to save data during parsing
 		DirMessage m = null;
 
 		for (String line : lines) {
@@ -215,11 +193,6 @@ public class DirMessage {
 		sb.append(FIELDNAME_SESSIONKEY + DELIMITER + session_key + END_LINE);
 		sb.append(FIELDNAME_HOSTNAME + DELIMITER + hostname + END_LINE);
 		sb.append(FIELDNAME_FILEINFO + DELIMITER + fileInfo + END_LINE);
-		/*
-		 * TODO: En función del tipo de mensaje, crear una cadena con el tipo y
-		 * concatenar el resto de campos necesarios usando los valores de los atributos
-		 * del objeto.
-		 */
 
 		sb.append(END_LINE); // Marcamos el final del mensaje
 		return sb.toString();

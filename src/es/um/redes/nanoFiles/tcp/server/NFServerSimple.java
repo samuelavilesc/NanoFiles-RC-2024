@@ -1,18 +1,13 @@
 package es.um.redes.nanoFiles.tcp.server;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketTimeoutException;
 
 public class NFServerSimple {
 
-	private static final int SERVERSOCKET_ACCEPT_TIMEOUT_MILISECS = 1000;
-	private static final String STOP_SERVER_COMMAND = "fgstop";
 	private static final int PORT = 10000;
 	private ServerSocket serverSocket = null;
 	private int port;

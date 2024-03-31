@@ -3,11 +3,8 @@ package es.um.redes.nanoFiles.udp.server;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
-import java.net.UnknownHostException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -55,13 +52,7 @@ public class NFDirectoryServer {
 	private LinkedList<FileInfo> files;
 	
 	private String addressClient;
-	/*
-	 *
-	 * TODO: Añadir aquí como atributos las estructuras de datos que sean necesarias
-	 * para mantener en el directorio cualquier información necesaria para la
-	 * funcionalidad del sistema nanoFilesP2P: ficheros publicados, servidores
-	 * registrados, etc.
-	 */
+
 	private static final String DELIMITER=","; 
 	/**
 	 * Generador de claves de sesión aleatorias (sessionKeys)
@@ -79,16 +70,9 @@ public class NFDirectoryServer {
 		 * confiable)
 		 */
 		messageDiscardProbability = corruptionProbability;
-		/*
-		 * TODO: (Boletín UDP) Inicializar el atributo socket: Crear un socket UDP
-		 * ligado al puerto especificado por el argumento directoryPort en la máquina
-		 * local,
-		 */
+
 		this.socket = new DatagramSocket(DIRECTORY_PORT);
-		/*
-		 * TODO: (Boletín UDP) Inicializar el resto de atributos de esta clase
-		 * (estructuras de datos que mantiene el servidor: nicks, sessionKeys, etc.)
-		 */
+		
 		this.nicks = new HashMap<>();
 		this.sessionKeys = new HashMap<>();
 		this.sessionHostnames = new HashMap<>();
@@ -177,12 +161,7 @@ public class NFDirectoryServer {
 						continue;
 					}
 					System.out.println(messageFromClient);
-					/*
-					 * TODO: Construir String partir de los datos recibidos en el datagrama. A
-					 * continuación, imprimir por pantalla dicha cadena a modo de depuración.
-					 * Después, usar la cadena para construir un objeto DirMessage que contenga en
-					 * sus atributos los valores del mensaje (fromString).
-					 */
+
 					DirMessage dirMessageFromClient = DirMessage.fromString(messageFromClient);
 					if(dirMessageFromClient.getOperation().equals(DirMessageOps.OPERATION_GET_FILELIST)) {
 						DirMessage response = null;
@@ -212,22 +191,12 @@ public class NFDirectoryServer {
 						}
 					}else {
 						DirMessage responseToClient = buildResponseFromRequest(dirMessageFromClient, clientAddr);
-						/*
-						 * TODO: Llamar a buildResponseFromRequest para construir, a partir del objeto
-						 * DirMessage con los valores del mensaje de petición recibido, un nuevo objeto
-						 * DirMessage con el mensaje de respuesta a enviar. Los atributos del objeto
-						 * DirMessage de respuesta deben haber sido establecidos con los valores
-						 * adecuados para los diferentes campos del mensaje (operation, etc.)
-						 */
+
 						String responseToSend = responseToClient.toString();
 						DatagramPacket packetToClient = new DatagramPacket(responseToSend.getBytes(),
 								responseToSend.getBytes().length,clientAddr);
 						socket.send(packetToClient);
-						/*
-						 * TODO: Convertir en string el objeto DirMessage con el mensaje de respuesta a
-						 * enviar, extraer los bytes en que se codifica el string (getBytes), y
-						 * finalmente enviarlos en un datagrama
-						 */
+
 
 					}
 					}
@@ -240,12 +209,7 @@ public class NFDirectoryServer {
 	}
 
 	private DirMessage buildResponseFromRequest(DirMessage msg, InetSocketAddress clientAddr) {
-		/*
-		 * TODO: Construir un DirMessage con la respuesta en función del tipo de mensaje
-		 * recibido, leyendo/modificando según sea necesario los atributos de esta clase
-		 * (el "estado" guardado en el directorio: nicks, sessionKeys, servers,
-		 * files...)
-		 */
+
 		String operation = msg.getOperation();
 
 		DirMessage response = null;
@@ -265,26 +229,12 @@ public class NFDirectoryServer {
 				this.nicks.put(username, key);
 				this.sessionKeys.put(key, username);
 			}
-			/*
-			 * TODO: Comprobamos si tenemos dicho usuario registrado (atributo "nicks"). Si
-			 * no está, generamos su sessionKey (número aleatorio entre 0 y 1000) y añadimos
-			 * el nick y su sessionKey asociada. NOTA: Puedes usar random.nextInt(10000)
-			 * para generar la session key
-			 */
+
 			response= new DirMessage(DirMessageOps.CODE_LOGINOK,username);
 			response.setSession_key(key);
 			System.out.println("El usuario "+username+" se ha conectado correctamente.");
 				
-			/*
-			 * TODO: Construimos un mensaje de respuesta que indique el éxito/fracaso del
-			 * login y contenga la sessionKey en caso de éxito, y lo devolvemos como
-			 * resultado del método.
-			 */
-			/*
-			 * TODO: Imprimimos por pantalla el resultado de procesar la petición recibida
-			 * (éxito o fracaso) con los datos relevantes, a modo de depuración en el
-			 * servidor
-			 */
+
 
 			break;
 		}

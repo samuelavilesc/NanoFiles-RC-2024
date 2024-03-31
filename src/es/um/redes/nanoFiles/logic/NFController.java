@@ -2,7 +2,6 @@ package es.um.redes.nanoFiles.logic;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.Arrays;
 import java.util.LinkedList;
 
 import es.um.redes.nanoFiles.application.NanoFiles;
@@ -16,11 +15,7 @@ public class NFController {
 	 */
 	private static final byte LOGGED_OUT = 0;
 	private static final byte LOGGED_IN = 1;
-	/*
-	 * TODO: Añadir más constantes que representen los estados del autómata del
-	 * cliente de directorio.
-	 */
-
+	private boolean serverOn;
 	/**
 	 * Shell para leer comandos de usuario de la entrada estándar
 	 */
@@ -57,7 +52,8 @@ public class NFController {
 	private String downloadTargetFileHash; // Hash del fichero a descargar (download)
 	private String downloadLocalFileName; // Nombre con el que se guardará el fichero descargado
 	private String downloadTargetServer; // nombre o IP:puerto del sevidor del que se descargará el fichero
-	private boolean serverOn;
+	
+
 	// Constructor
 	public NFController() {
 		shell = new NFShell();
@@ -65,7 +61,7 @@ public class NFController {
 		controllerPeer = new NFControllerLogicP2P();
 		// Estado inicial del autómata
 		currentState = LOGGED_OUT;
-		serverOn=false;
+		serverOn = false;
 	}
 
 	/**
@@ -113,7 +109,7 @@ public class NFController {
 			 * Pedir al controllerDir que "cierre sesión" en el directorio para dar de baja
 			 * el nombre de usuario registrado (método doLogout).
 			 */
-			if(serverOn) {
+			if (serverOn) {
 				controllerPeer.stopBackgroundFileServer();
 				controllerDir.unregisterFileServer();
 			}
@@ -139,14 +135,10 @@ public class NFController {
 			 * Pedir al controllerPeer que lance un servidor de ficheros en primer plano
 			 * (método foregroundServeFiles). Este método no retorna...
 			 */
-			if(currentState==LOGGED_IN) {
 				controllerPeer.foregroundServeFiles(controllerDir);
-				//si termina la ejecucion es por que el server ha cerrado
+				// si termina la ejecucion es por que el server ha cerrado
 				controllerDir.unregisterFileServer();
-			}else {
-				System.err.println("Debes iniciar sesion antes de lanzar un servidor de ficheros.");
-			}
-			
+
 			break;
 		case NFCommands.COM_PUBLISH:
 			/*
@@ -164,16 +156,12 @@ public class NFController {
 			 * ficheros en el directorio, indicando el puerto en el que nuestro servidor
 			 * escucha conexiones de otros peers (método registerFileServer).
 			 */
-			if(currentState==LOGGED_IN) {
-				boolean serverRunning = controllerPeer.backgroundServeFiles();
-				if (serverRunning) {
-					serverOn=true;
-					commandSucceeded = controllerDir.registerFileServer(""+controllerPeer.getServerPort());
-				}
-				
-			}else {
-				System.err.println("Debes iniciar sesion antes de lanzar un servidor de ficheros.");
+			boolean serverRunning = controllerPeer.backgroundServeFiles();
+			if (serverRunning) {
+				serverOn = true;
+				commandSucceeded = controllerDir.registerFileServer("" + controllerPeer.getServerPort());
 			}
+
 			break;
 		case NFCommands.COM_STOP_SERVER:
 			/*
@@ -183,7 +171,7 @@ public class NFController {
 			 * unregisterFileServer).
 			 */
 			controllerPeer.stopBackgroundFileServer();
-			serverOn=false;
+			serverOn = false;
 			commandSucceeded = controllerDir.unregisterFileServer();
 			break;
 		case NFCommands.COM_DOWNLOADFROM:
@@ -207,6 +195,7 @@ public class NFController {
 			 * que tienen disponible el fichero identificado por dicho hash (puede ser una
 			 * subcadena del hash o el hash completo)
 			 */
+
 			commandSucceeded = controllerDir.getAndPrintServersNicknamesSharingThisFile(downloadTargetFileHash);
 			break;
 		case NFCommands.COM_DOWNLOAD:
@@ -235,12 +224,7 @@ public class NFController {
 	 * usuario, en función del estado del autómata en el que nos encontramos.
 	 */
 	public boolean canProcessCommandInCurrentState() {
-		/*
-		 * TODO: Para cada comando tecleado en el shell (currentCommand), comprobar
-		 * "currentState" para ver si dicho comando es válido según el estado actual del
-		 * autómata, ya que no todos los comandos serán válidos en cualquier estado.
-		 * Este método NO debe modificar clientStatus.
-		 */
+
 		boolean commandAllowed = true;
 		switch (currentCommand) {
 		case NFCommands.COM_MYFILES: {
@@ -253,6 +237,63 @@ public class NFController {
 				System.err.println("* You cannot login because you are not logged out from the directory");
 			}
 			break;
+		case NFCommands.COM_LOGOUT: {
+			if (currentState == LOGGED_OUT) {
+				commandAllowed = false;
+				System.err.println("* You cannot logout because you are not logged into the directory");
+			}
+			break;
+		}
+		case NFCommands.COM_BGSERVE: {
+			if (currentState == LOGGED_OUT) {
+				commandAllowed = false;
+				System.err.println("* You cannot start a bgserver because you are not logged into the directory");
+			}
+			break;
+		}
+		case NFCommands.COM_FGSERVE: {
+			if (currentState == LOGGED_OUT) {
+				commandAllowed = false;
+				System.err.println("* You cannot start a fgserver because you are not logged into the directory");
+			}
+			break;
+		}
+		case NFCommands.COM_FILELIST: {
+			if (currentState == LOGGED_OUT) {
+				commandAllowed = false;
+				System.err.println("* You cannot request the filelist because you are not logged into the directory");
+			}
+			break;
+		}
+		case NFCommands.COM_USERLIST: {
+			if (currentState == LOGGED_OUT) {
+				commandAllowed = false;
+				System.err.println("* You cannot request the userlist because you are not logged into the directory");
+			}
+			break;
+		}
+		case NFCommands.COM_DOWNLOADFROM: {
+			if (currentState == LOGGED_OUT) {
+				commandAllowed = false;
+				System.err.println(
+						"* You cannot donwload files from server because you are not logged into the directory");
+			}
+			break;
+		}
+		case NFCommands.COM_SEARCH: {
+			if (currentState == LOGGED_OUT) {
+				commandAllowed = false;
+				System.err.println("* You cannot search files because you are not logged into the directory");
+			}
+			break;
+		}
+		case NFCommands.COM_PUBLISH: {
+			if (serverOn==false) {
+				commandAllowed = false;
+				System.err.println("* You cannot publish files because you are not a file server.");
+			}
+			break;
+		}
 
 		default:
 			// System.err.println("ERROR: undefined behaviour for " + currentCommand + "
@@ -262,11 +303,7 @@ public class NFController {
 	}
 
 	private void updateCurrentState(boolean success) {
-		/*
-		 * TODO: Si el comando ha sido procesado con éxito, debemos actualizar
-		 * currentState de acuerdo con el autómata diseñado para pasar al siguiente
-		 * estado y así permitir unos u otros comandos en cada caso.
-		 */
+
 		if (!success) {
 			return;
 		}

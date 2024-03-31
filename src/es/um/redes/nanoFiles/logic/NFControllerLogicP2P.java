@@ -11,10 +11,7 @@ import es.um.redes.nanoFiles.tcp.server.NFServer;
 import es.um.redes.nanoFiles.tcp.server.NFServerSimple;
 
 public class NFControllerLogicP2P {
-	/*
-	 * TODO: Para bgserve, se necesita un atributo NFServer que actuará como
-	 * servidor de ficheros en segundo plano de este peer
-	 */
+
 	private NFServer bgserver;
 	
 	protected NFControllerLogicP2P() {
@@ -26,19 +23,12 @@ public class NFControllerLogicP2P {
 	 * 
 	 */
 	protected void foregroundServeFiles(NFControllerLogicDir controllerDir) {
-		/*
-		 * TODO: Crear objeto servidor NFServerSimple y ejecutarlo en primer plano.
-		 * 
-		 */
+
 			NFServerSimple simple = new NFServerSimple();
 			controllerDir.registerFileServer(""+simple.getPort()); //aviso al directorio del puerto de escucha
 			simple.run();
 			
-		/*
-		 * TODO: Las excepciones que puedan lanzarse deben ser capturadas y tratadas en
-		 * este método. Si se produce una excepción de entrada/salida (error del que no
-		 * es posible recuperarse), se debe informar sin abortar el programa
-		 */
+
 
 	}
 
@@ -51,13 +41,7 @@ public class NFControllerLogicP2P {
 	 * 
 	 */
 	protected boolean backgroundServeFiles() {
-		/*
-		 * TODO: Comprobar que no existe ya un objeto NFServer previamente creado, en
-		 * cuyo caso el servidor ya está en marcha. Si no lo está, crear objeto servidor
-		 * NFServer y arrancarlo en segundo plano creando un nuevo hilo. Finalmente,
-		 * comprobar que el servidor está escuchando en un puerto válido (>0) e imprimir
-		 * mensaje informando sobre el puerto, y devolver verdadero.
-		 */
+
 		boolean success = false;
 		if(this.bgserver==null) {
 			try {
@@ -73,11 +57,6 @@ public class NFControllerLogicP2P {
 		}else {
 			System.err.println("Ya existe un objeto NFServer creado previamente.");
 		}
-		/*
-		 * TODO: Las excepciones que puedan lanzarse deben ser capturadas y tratadas en
-		 * este método. Si se produce una excepción de entrada/salida (error del que no
-		 * es posible recuperarse), se debe informar sin abortar el programa
-		 */
 
 		return success;
 	}

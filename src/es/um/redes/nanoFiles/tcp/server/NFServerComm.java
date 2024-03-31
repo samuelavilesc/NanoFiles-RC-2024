@@ -23,7 +23,6 @@ public class NFServerComm {
 			OutputStream os = socket.getOutputStream();
 			DataInputStream dis = new DataInputStream(is);
 			DataOutputStream dos = new DataOutputStream(os);
-			while (!socket.isClosed()) {
 				/*
 				 * Primero recibimos un mensaje con el hash Despues buscamos el fichero y
 				 * enviamos su hash, cuando el cliente nos confirme haber recibido el hash
@@ -65,7 +64,6 @@ public class NFServerComm {
 					socket.close(); // cierro el socket tras acabar la conexion
 				}
 
-			}
 
 		} catch (IOException e) {
 			System.err.println("Hubo un error sirviendo ficheros al cliente.");

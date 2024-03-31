@@ -1,12 +1,10 @@
 package es.um.redes.nanoFiles.udp.client;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.SocketTimeoutException;
 import java.util.Arrays;
 import java.util.LinkedList;
 
@@ -52,8 +50,6 @@ public class DirectoryConnector {
 	private InetSocketAddress directoryAddress;
 
 	private int sessionKey = INVALID_SESSION_KEY;
-	private boolean successfulResponseStatus;
-	private String errorDescription;
 
 	public DirectoryConnector(String address) throws IOException {
 		/*
@@ -69,6 +65,7 @@ public class DirectoryConnector {
 		this.socket = new DatagramSocket();
 
 	}
+
 	private byte[] receiveDatagrams() {
 		byte responseData[] = new byte[DirMessage.PACKET_MAX_SIZE];
 		byte response[] = null;
@@ -96,6 +93,7 @@ public class DirectoryConnector {
 		response = stringFromServer.getBytes();
 		return response;
 	}
+
 	/**
 	 * Método para enviar y recibir datagramas al/del directorio
 	 * 
@@ -220,27 +218,16 @@ public class DirectoryConnector {
 		assert (sessionKey == INVALID_SESSION_KEY);
 		boolean success = false;
 		DirMessage messageToServer = new DirMessage(DirMessageOps.OPERATION_LOGIN, nickname);
-		// TODO: 1.Crear el mensaje a enviar (objeto DirMessage) con atributos adecuados
-		// (operation, etc.) NOTA: Usar como operaciones las constantes definidas en la
-		// clase
-		// DirMessageOps
 		byte[] dataToServer = new byte[DirMessage.PACKET_MAX_SIZE];
 		dataToServer = messageToServer.toString().getBytes();
-		// TODO: 2.Convertir el objeto DirMessage a enviar a un string (método toString)
-		// TODO: 3.Crear un datagrama con los bytes en que se codifica la cadena
 		byte[] dataFromServer = sendAndReceiveDatagrams(dataToServer);
-		// TODO: 4.Enviar datagrama y recibir una respuesta (sendAndReceiveDatagrams).
 		String messageFromServer = new String(dataFromServer, 0, dataFromServer.length);
 		DirMessage responseFromServer = DirMessage.fromString(messageFromServer);
-		// TODO: 5.Convertir respuesta recibida en un objeto DirMessage (método
-		// DirMessage.fromString)
 		if (responseFromServer.getOperation().equals(DirMessageOps.CODE_LOGINOK)) {
 			int key = responseFromServer.getSession_key();
 			sessionKey = key;
 			success = true;
 		}
-		// TODO: 6.Extraer datos del objeto DirMessage y procesarlos (p.ej., sessionKey)
-		// TODO: 7.Devolver éxito/fracaso de la operación
 
 		return success;
 	}
@@ -255,27 +242,15 @@ public class DirectoryConnector {
 	 */
 	public String[] getUserList() {
 		String[] userlist = null;
-		// TODO: Ver TODOs en logIntoDirectory y seguir esquema similar
 		DirMessage messageToServer = new DirMessage(DirMessageOps.OPERATION_USERLIST);
-		// TODO: 1.Crear el mensaje a enviar (objeto DirMessage) con atributos adecuados
-		// (operation, etc.) NOTA: Usar como operaciones las constantes definidas en la
-		// clase
-		// DirMessageOps
 		byte[] dataToServer = new byte[DirMessage.PACKET_MAX_SIZE];
 		dataToServer = messageToServer.toString().getBytes();
-		// TODO: 2.Convertir el objeto DirMessage a enviar a un string (método toString)
-		// TODO: 3.Crear un datagrama con los bytes en que se codifica la cadena
 		byte[] dataFromServer = sendAndReceiveDatagrams(dataToServer);
-		// TODO: 4.Enviar datagrama y recibir una respuesta (sendAndReceiveDatagrams).
 		String messageFromServer = new String(dataFromServer, 0, dataFromServer.length);
 		DirMessage responseFromServer = DirMessage.fromString(messageFromServer);
-		// TODO: 5.Convertir respuesta recibida en un objeto DirMessage (método
-		// DirMessage.fromString)
 		if (responseFromServer.getOperation().equals(DirMessageOps.OPERATION_USERLIST)) {
 			userlist = responseFromServer.getNickname().split(DELIMITER);
 		}
-		// TODO: 6.Extraer datos del objeto DirMessage y procesarlos (p.ej., sessionKey)
-		// TODO: 7.Devolver éxito/fracaso de la operación
 
 		return userlist;
 	}
@@ -286,30 +261,18 @@ public class DirectoryConnector {
 	 * @return Verdadero si el directorio eliminó a este usuario exitosamente
 	 */
 	public boolean logoutFromDirectory() {
-		// TODO: Ver TODOs en logIntoDirectory y seguir esquema similar
 		boolean success = false;
 		DirMessage messageToServer = new DirMessage(DirMessageOps.OPERATION_LOGOUT, this.sessionKey);
-		// TODO: 1.Crear el mensaje a enviar (objeto DirMessage) con atributos adecuados
-		// (operation, etc.) NOTA: Usar como operaciones las constantes definidas en la
-		// clase
-		// DirMessageOps
 		byte[] dataToServer = new byte[DirMessage.PACKET_MAX_SIZE];
 		dataToServer = messageToServer.toString().getBytes();
-		// TODO: 2.Convertir el objeto DirMessage a enviar a un string (método toString)
-		// TODO: 3.Crear un datagrama con los bytes en que se codifica la cadena
 		byte[] dataFromServer = sendAndReceiveDatagrams(dataToServer);
-		// TODO: 4.Enviar datagrama y recibir una respuesta (sendAndReceiveDatagrams).
 		String messageFromServer = new String(dataFromServer, 0, dataFromServer.length);
 		DirMessage responseFromServer = DirMessage.fromString(messageFromServer);
-		// TODO: 5.Convertir respuesta recibida en un objeto DirMessage (método
-		// DirMessage.fromString)
 		if (responseFromServer.getOperation().equals(DirMessageOps.CODE_LOGOUTOK)) {
 			success = true;
 		} else {
 			System.err.println("Logout fallido.");
 		}
-		// TODO: 6.Extraer datos del objeto DirMessage y procesarlos (p.ej., sessionKey)
-		// TODO: 7.Devolver éxito/fracaso de la operación
 
 		return success;
 	}
@@ -323,7 +286,6 @@ public class DirectoryConnector {
 	 *         servidor.
 	 */
 	public boolean registerServerPort(String hostname) {
-		// TODO: Ver TODOs en logIntoDirectory y seguir esquema similar
 		boolean success = false;
 		DirMessage messageToServer = new DirMessage(DirMessageOps.OPERATION_REGISTER_FILESERVER, this.sessionKey,
 				hostname);
@@ -339,7 +301,6 @@ public class DirectoryConnector {
 	}
 
 	public boolean unregisterServerPort() {
-		// TODO: Ver TODOs en logIntoDirectory y seguir esquema similar
 		boolean success = false;
 		DirMessage messageToServer = new DirMessage(DirMessageOps.OPERATION_UNREGISTER_FILESERVER, this.sessionKey);
 		byte[] dataToServer = new byte[DirMessage.PACKET_MAX_SIZE];
@@ -364,7 +325,6 @@ public class DirectoryConnector {
 	 */
 	public InetSocketAddress lookupServerAddrByUsername(String nick) {
 		InetSocketAddress serverAddr = null;
-		// TODO: Ver TODOs en logIntoDirectory y seguir esquema similar
 		DirMessage messageToServer = new DirMessage(DirMessageOps.OPERATION_GETIP, nick);
 		byte[] dataToServer = new byte[DirMessage.PACKET_MAX_SIZE];
 		dataToServer = messageToServer.toString().getBytes();
@@ -373,9 +333,9 @@ public class DirectoryConnector {
 		DirMessage responseFromServer = DirMessage.fromString(messageFromServer);
 		if (responseFromServer.getOperation().equals(DirMessageOps.CODE_GETIPOK)) {
 			String[] ipHost = responseFromServer.getHostname().split(DELIMITER);
-			System.out.println(ipHost[0]+ipHost[2]);
+			System.out.println(ipHost[0] + ipHost[2]);
 			serverAddr = new InetSocketAddress(ipHost[0], Integer.parseInt(ipHost[2]));
-			
+
 		}
 		System.out.println(serverAddr.toString());
 		return serverAddr;
@@ -408,12 +368,13 @@ public class DirectoryConnector {
 				DirMessage fileToServer = new DirMessage(DirMessageOps.OPERATION_FILEINFO, this.sessionKey);
 				fileToServer.setFileInfo(fileInfo);
 				dataToServer = fileToServer.toString().getBytes();
+
 				byte[] confirmFromServer = sendAndReceiveDatagrams(dataToServer);
 				String strFromServer = new String(confirmFromServer, 0, confirmFromServer.length);
-				 responseFromServer = DirMessage.fromString(strFromServer);
+				responseFromServer = DirMessage.fromString(strFromServer);
 				if (!responseFromServer.getOperation().equals(DirMessageOps.CODE_FILEINFOOK)) {
-					//si el directorio responde con otra cosa que no sea la confirmacion
-					//abortamos la ejecucion
+					// si el directorio responde con otra cosa que no sea la confirmacion
+					// abortamos la ejecucion
 					System.err.println("Problemas enviando informacion de ficheros al directorio");
 					System.exit(1);
 				}
@@ -424,14 +385,13 @@ public class DirectoryConnector {
 			String confirmFromServer = new String(dataFromServer, 0, dataFromServer.length);
 			responseFromServer = DirMessage.fromString(confirmFromServer);
 			if (responseFromServer.getOperation().equals(DirMessageOps.CODE_PUBLISHOK)) {
-				success=true;
+				success = true;
 				System.out.println("Publish realizado con éxito.");
 			}
 		} else {
 			System.err.println("Para poder hacer publish debes haberte registrado como servidor.");
 		}
 
-		// TODO: Ver TODOs en logIntoDirectory y seguir esquema similar
 
 		return success;
 	}
@@ -448,23 +408,22 @@ public class DirectoryConnector {
 	public FileInfo[] getFileList() {
 		FileInfo[] filelist = null;
 		LinkedList<FileInfo> files = new LinkedList<>();
-		// TODO: Ver TODOs en logIntoDirectory y seguir esquema similar
 		DirMessage messageToServer = new DirMessage(DirMessageOps.OPERATION_GET_FILELIST);
 		byte[] dataToServer = new byte[DirMessage.PACKET_MAX_SIZE];
 		dataToServer = messageToServer.toString().getBytes();
 		byte[] dataFromServer = sendAndReceiveDatagrams(dataToServer);
 		String messageFromServer = new String(dataFromServer, 0, dataFromServer.length);
 		DirMessage responseFromServer = DirMessage.fromString(messageFromServer);
-		while(responseFromServer.getOperation().equals(DirMessageOps.OPERATION_FILEINFO)) {
+		while (responseFromServer.getOperation().equals(DirMessageOps.OPERATION_FILEINFO)) {
 			files.add(FileInfo.fromString(responseFromServer.getFileInfo()));
-			//añadimos el fichero a lista y pedimos otro
+			// añadimos el fichero a lista y pedimos otro
 			dataFromServer = receiveDatagrams();
 			messageFromServer = new String(dataFromServer, 0, dataFromServer.length);
 			responseFromServer = DirMessage.fromString(messageFromServer);
 		}
-		if(responseFromServer.getOperation().equals(DirMessageOps.CODE_FILELISTOK)) {
-			filelist= new FileInfo[files.size()];
-			 files.toArray(filelist);
+		if (responseFromServer.getOperation().equals(DirMessageOps.CODE_FILELISTOK)) {
+			filelist = new FileInfo[files.size()];
+			files.toArray(filelist);
 		}
 		return filelist;
 	}
@@ -480,7 +439,6 @@ public class DirectoryConnector {
 	 */
 	public String[] getServerNicknamesSharingThisFile(String fileHash) {
 		String[] nicklist = null;
-		// TODO: Ver TODOs en logIntoDirectory y seguir esquema similar
 		DirMessage messageToServer = new DirMessage(DirMessageOps.OPERATION_GET_NICKLIST);
 		messageToServer.setFileInfo(fileHash);
 		byte[] dataToServer = new byte[DirMessage.PACKET_MAX_SIZE];
@@ -490,7 +448,7 @@ public class DirectoryConnector {
 		DirMessage responseFromServer = DirMessage.fromString(messageFromServer);
 		if (responseFromServer.getOperation().equals(DirMessageOps.OPERATION_GET_NICKLIST)) {
 			nicklist = responseFromServer.getFileInfo().split(",");
-		}else {
+		} else {
 			System.err.println("Hubo algun problema identificando el fichero con su hash.");
 		}
 
