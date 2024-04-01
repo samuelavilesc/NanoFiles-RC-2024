@@ -8,27 +8,21 @@ public class PeerMessageOps {
 	public static final byte OPCODE_INVALID_CODE = 0;
 	public static final byte OPCODE_DOWNLOAD_FILE = 1;
 	public static final byte OPCODE_SEND_FILE = 2;
-	public static final byte OPCODE_SEND_FILE_CHUNK = 3;
 	public static final byte OPCODE_NOT_FOUND = 4;
-	public static final byte OPCODE_GET_HASH = 5;
+	public static final byte OPCODE_SERVE_HASH = 3;
 	
 	
 
 
 
 
-	/**
-	 * TODO: Definir constantes con nuevos opcodes de mensajes
-	 * definidos, añadirlos al array "valid_opcodes" y añadir su
-	 * representación textual a "valid_operations_str" en el mismo orden
-	 */
+	
 	private static final Byte[] _valid_opcodes = {
 			OPCODE_INVALID_CODE,
 			OPCODE_DOWNLOAD_FILE,
 			OPCODE_SEND_FILE,
-			OPCODE_SEND_FILE_CHUNK,
 			OPCODE_NOT_FOUND,
-			OPCODE_GET_HASH,
+			OPCODE_SERVE_HASH,
 			
 
 
@@ -38,9 +32,8 @@ public class PeerMessageOps {
 			"INVALID_OPCODE",
 			"DOWNLOAD_FILE",
 			"SEND_FILE",
-			"SEND_FILE_CHUNK",
 			"NOT_FOUND",
-			"OPCODE_GET_HASH",
+			"OPCODE_SERVE_HASH",
 
 
 

@@ -252,9 +252,9 @@ public class NFController {
 			break;
 		}
 		case NFCommands.COM_FGSERVE: {
-			if (currentState == LOGGED_OUT) {
+			if (currentState == LOGGED_OUT || serverOn==true) {
 				commandAllowed = false;
-				System.err.println("* You cannot start a fgserver because you are not logged into the directory");
+				System.err.println("* You cannot start a fgserver because you are not logged into the directory or you are a server.");
 			}
 			break;
 		}
@@ -287,13 +287,7 @@ public class NFController {
 			}
 			break;
 		}
-		case NFCommands.COM_PUBLISH: {
-			if (serverOn==false) {
-				commandAllowed = false;
-				System.err.println("* You cannot publish files because you are not a file server.");
-			}
-			break;
-		}
+
 
 		default:
 			// System.err.println("ERROR: undefined behaviour for " + currentCommand + "

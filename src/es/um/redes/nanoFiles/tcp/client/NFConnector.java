@@ -66,7 +66,7 @@ public class NFConnector {
 		// enviado)
 		PeerMessage hashMessageFromServer = PeerMessage.readMessageFromInputStream(dis);
 		String hashFromServer = "";
-		if (hashMessageFromServer.getOpcode() == PeerMessageOps.OPCODE_GET_HASH) {
+		if (hashMessageFromServer.getOpcode() == PeerMessageOps.OPCODE_SERVE_HASH) {
 			hashFromServer = new String(hashMessageFromServer.getParam2());
 			PeerMessage receiveDataFromServer = PeerMessage.readMessageFromInputStream(dis);
 			byte[] par2 = receiveDataFromServer.getParam2();

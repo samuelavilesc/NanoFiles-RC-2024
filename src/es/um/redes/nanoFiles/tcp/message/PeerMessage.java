@@ -2,15 +2,9 @@ package es.um.redes.nanoFiles.tcp.message;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.EOFException;
-import java.io.File;
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 
-import es.um.redes.nanoFiles.util.FileInfo;
 
 public class PeerMessage {
 
@@ -92,11 +86,6 @@ public class PeerMessage {
 
 	}
 
-	/*
-	 * TODO: Crear métodos getter y setter para obtener valores de nuevos atributos,
-	 * comprobando previamente que dichos atributos han sido establecidos por el
-	 * constructor (sanity checks)
-	 */
 	public byte[] getParam1() {
 		if (param1 == null) {
 			throw new IllegalArgumentException();
@@ -180,24 +169,8 @@ public class PeerMessage {
 			message.setParam2(valor);
 			break;
 		}
-		/*
-		 * TODO: cambiar los parse cuando sepa como va a ser case
-		 * (PeerMessageOps.OPCODE_SEND_FILE_CHUNK): { byte[] longitud = new
-		 * byte[bytesLongitud]; // supongo que el campo longitud tiene 8 bytes
-		 * dis.read(longitud); message.setParam1(longitud); switch (bytesLongitud) {
-		 * case (1): { byte[] valor = new byte[1]; dis.readFully(valor);
-		 * message.setParam2(valor); break; } case (Short.BYTES): { short longit =
-		 * Short.parseShort(longitud.toString()); byte[] valor = new byte[longit];
-		 * dis.readFully(valor); message.setParam2(valor); break; } case
-		 * (Integer.BYTES): { int longit = Integer.parseInt(longitud.toString()); byte[]
-		 * valor = new byte[longit]; dis.readFully(valor); message.setParam2(valor);
-		 * break; } case(Long.BYTES):{ long longit =
-		 * Long.parseLong(longitud.toString()); byte[] valor = new byte[(int) longit];
-		 * dis.readFully(valor); message.setParam2(valor); break; } }
-		 * 
-		 * break; }
-		 */
-		case (PeerMessageOps.OPCODE_GET_HASH): {
+
+		case (PeerMessageOps.OPCODE_SERVE_HASH): {
 			bytesLongitud = 1;
 			byte[] hashLength = new byte[bytesLongitud];
 			hashLength[0] = dis.readByte();
@@ -217,12 +190,7 @@ public class PeerMessage {
 	}
 
 	public void writeMessageToOutputStream(DataOutputStream dos) throws IOException {
-		/*
-		 * TODO: Escribir los bytes en los que se codifica el mensaje en el socket a
-		 * través del "dos", teniendo en cuenta opcode del mensaje del que se trata y
-		 * los campos relevantes en cada caso. NOTA: Usar dos.write para leer un array
-		 * de bytes, dos.writeInt para escribir un entero, etc.
-		 */
+
 
 		dos.writeByte(opcode);
 		switch (opcode) {
@@ -242,12 +210,8 @@ public class PeerMessage {
 			dos.write(param2);
 			break;
 		}
-		case (PeerMessageOps.OPCODE_SEND_FILE_CHUNK): {
-			dos.write(param1);
-			dos.write(param2);
-			break;
-		}
-		case (PeerMessageOps.OPCODE_GET_HASH): {
+
+		case (PeerMessageOps.OPCODE_SERVE_HASH): {
 			dos.write(param1);
 			dos.write(param2);
 			break;

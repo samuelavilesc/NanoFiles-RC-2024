@@ -331,13 +331,11 @@ public class DirectoryConnector {
 		byte[] dataFromServer = sendAndReceiveDatagrams(dataToServer);
 		String messageFromServer = new String(dataFromServer, 0, dataFromServer.length);
 		DirMessage responseFromServer = DirMessage.fromString(messageFromServer);
-		if (responseFromServer.getOperation().equals(DirMessageOps.CODE_GETIPOK)) {
+		if (responseFromServer.getOperation().equals(DirMessageOps.OPERATION_SERVEIP)) {
 			String[] ipHost = responseFromServer.getHostname().split(DELIMITER);
-			System.out.println(ipHost[0] + ipHost[2]);
-			serverAddr = new InetSocketAddress(ipHost[0], Integer.parseInt(ipHost[2]));
+			serverAddr = new InetSocketAddress(ipHost[0], Integer.parseInt(ipHost[1]));
 
 		}
-		System.out.println(serverAddr.toString());
 		return serverAddr;
 	}
 
@@ -384,12 +382,9 @@ public class DirectoryConnector {
 			dataFromServer = sendAndReceiveDatagrams(dataToServer);
 			String confirmFromServer = new String(dataFromServer, 0, dataFromServer.length);
 			responseFromServer = DirMessage.fromString(confirmFromServer);
-			if (responseFromServer.getOperation().equals(DirMessageOps.CODE_PUBLISHOK)) {
+			if (responseFromServer.getOperation().equals(DirMessageOps.CODE_PUBLISHENDOK)) {
 				success = true;
-				System.out.println("Publish realizado con éxito.");
 			}
-		} else {
-			System.err.println("Para poder hacer publish debes haberte registrado como servidor.");
 		}
 
 
@@ -446,8 +441,8 @@ public class DirectoryConnector {
 		byte[] dataFromServer = sendAndReceiveDatagrams(dataToServer);
 		String messageFromServer = new String(dataFromServer, 0, dataFromServer.length);
 		DirMessage responseFromServer = DirMessage.fromString(messageFromServer);
-		if (responseFromServer.getOperation().equals(DirMessageOps.OPERATION_GET_NICKLIST)) {
-			nicklist = responseFromServer.getFileInfo().split(",");
+		if (responseFromServer.getOperation().equals(DirMessageOps.OPERATION_SERVE_NICKLIST)) {
+			nicklist = responseFromServer.getFileInfo().split(DELIMITER);
 		} else {
 			System.err.println("Hubo algun problema identificando el fichero con su hash.");
 		}

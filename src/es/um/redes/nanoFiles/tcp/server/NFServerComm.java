@@ -42,6 +42,7 @@ public class NFServerComm {
 						if (coincidencia.length > 1 || coincidencia.length == 0) {
 							PeerMessage sendError = new PeerMessage(PeerMessageOps.OPCODE_NOT_FOUND);
 							sendError.writeMessageToOutputStream(dos);
+							return; //finalizo la ejecucion.
 						} else {
 							filePath = coincidencia[0].filePath;
 							completeHash = coincidencia[0].fileHash;
@@ -49,7 +50,7 @@ public class NFServerComm {
 					}
 
 					/* Envio el mensaje */
-					PeerMessage sendHashToClient = new PeerMessage(PeerMessageOps.OPCODE_GET_HASH,
+					PeerMessage sendHashToClient = new PeerMessage(PeerMessageOps.OPCODE_SERVE_HASH,
 							(byte) completeHash.getBytes().length, completeHash.getBytes());
 					sendHashToClient.writeMessageToOutputStream(dos);
 					File f = new File(filePath); // abro el fichero

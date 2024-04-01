@@ -159,10 +159,15 @@ public class NFControllerLogicDir {
 	protected boolean publishLocalFiles() {
 
 		boolean result = false;
-		this.directoryConnector.publishLocalFiles(NanoFiles.db.getFiles());
+		result=this.directoryConnector.publishLocalFiles(NanoFiles.db.getFiles());
+		if(result==true) {
+			System.out.println("Ficheros publicados con éxito.");
+		}else {
+			System.err.println("Hubo algun problema publicando los ficheros.");
+		}
 		return result;
 	}
-
+	
 	/**
 	 * Método para consultar al directorio el nick de un peer servidor y obtener
 	 * como respuesta la dirección de socket IP:puerto asociada a dicho servidor
