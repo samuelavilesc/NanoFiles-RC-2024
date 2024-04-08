@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Vector;
 
 import es.um.redes.nanoFiles.shell.NFShell;
@@ -14,6 +15,7 @@ public class FileInfo {
 	public String filePath;
 	public long fileSize = -1;
 	private static final String DELIMITER = ",";
+
 	public FileInfo(String hash, String name, long size, String path) {
 		fileHash = hash;
 		fileName = name;
@@ -22,6 +24,7 @@ public class FileInfo {
 	}
 
 	public FileInfo() {
+
 	}
 
 	public String toString() {
@@ -30,22 +33,48 @@ public class FileInfo {
 		strBuf.append(String.format("%1$-30s", fileName));
 		strBuf.append(String.format("%1$10s", fileSize));
 		strBuf.append(String.format(" %1$-45s", fileHash));
-		if(filePath!=null) {
+		if (filePath != null) {
 			strBuf.append(String.format(" %1$-45s", filePath));
 		}
 		return strBuf.toString();
 	}
+
 	public static FileInfo fromString(String file) {
 		String[] info = file.split(DELIMITER);
 		FileInfo aux = new FileInfo();
-		aux.fileHash=info[2];
-		aux.fileName=info[0];
-		aux.fileSize=Long.parseLong(info[1]);
-		if(info.length==4) {
-			aux.filePath=info[3];
+		aux.fileHash = info[2];
+		aux.fileName = info[0];
+		aux.fileSize = Long.parseLong(info[1]);
+		if (info.length >= 4) {
+			for (int i = 3; i < info.length; i++) {
+				if (aux.filePath == null) {
+					aux.filePath = info[i];
+				} else {
+					aux.filePath = aux.filePath+ DELIMITER + info[i];
+				}
+			}
 		}
 		return aux;
 	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(fileHash, fileName, filePath, fileSize);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		FileInfo other = (FileInfo) obj;
+		return Objects.equals(fileHash, other.fileHash) && Objects.equals(fileName, other.fileName)
+				&& Objects.equals(filePath, other.filePath) && fileSize == other.fileSize;
+	}
+
 	public static void printToSysout(FileInfo[] files) {
 		StringBuffer strBuf = new StringBuffer();
 		strBuf.append(String.format("%1$-30s", "Name"));
@@ -56,6 +85,7 @@ public class FileInfo {
 			System.out.println(file);
 		}
 	}
+
 	public static void printToSysoutWithPath(FileInfo[] files) {
 		StringBuffer strBuf = new StringBuffer();
 		strBuf.append(String.format("%1$-30s", "Name"));
@@ -65,6 +95,21 @@ public class FileInfo {
 		System.out.println(strBuf);
 		for (FileInfo file : files) {
 			System.out.println(file);
+		}
+	}
+	public void removeNamePath(String name) {
+		String[] names = this.filePath.split(DELIMITER);
+		if(names.length!=1) {
+			this.filePath="";
+			for(String n : names) {
+				if(!n.equals(name)) {
+					if(this.filePath.equals("")) {
+						this.filePath=n;
+					}else {
+						this.filePath=this.filePath+","+n;
+					}
+				}
+			}
 		}
 	}
 

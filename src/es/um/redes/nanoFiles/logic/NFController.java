@@ -52,7 +52,6 @@ public class NFController {
 	private String downloadTargetFileHash; // Hash del fichero a descargar (download)
 	private String downloadLocalFileName; // Nombre con el que se guardará el fichero descargado
 	private String downloadTargetServer; // nombre o IP:puerto del sevidor del que se descargará el fichero
-	
 
 	// Constructor
 	public NFController() {
@@ -112,6 +111,7 @@ public class NFController {
 			if (serverOn) {
 				controllerPeer.stopBackgroundFileServer();
 				controllerDir.unregisterFileServer();
+				serverOn=false;
 			}
 			commandSucceeded = controllerDir.doLogout();
 			break;
@@ -135,9 +135,9 @@ public class NFController {
 			 * Pedir al controllerPeer que lance un servidor de ficheros en primer plano
 			 * (método foregroundServeFiles). Este método no retorna...
 			 */
-				controllerPeer.foregroundServeFiles(controllerDir);
-				// si termina la ejecucion es por que el server ha cerrado
-				controllerDir.unregisterFileServer();
+			controllerPeer.foregroundServeFiles(controllerDir);
+			// si termina la ejecucion es por que el server ha cerrado
+			controllerDir.unregisterFileServer();
 
 			break;
 		case NFCommands.COM_PUBLISH:
@@ -156,10 +156,10 @@ public class NFController {
 			 * ficheros en el directorio, indicando el puerto en el que nuestro servidor
 			 * escucha conexiones de otros peers (método registerFileServer).
 			 */
-			boolean serverRunning = controllerPeer.backgroundServeFiles();
-			if (serverRunning) {
-				serverOn = true;
-				commandSucceeded = controllerDir.registerFileServer("" + controllerPeer.getServerPort());
+			serverOn = controllerPeer.backgroundServeFiles();
+			if (serverOn) {
+
+				commandSucceeded = controllerDir.registerFileServer(Integer.toString(controllerPeer.getServerPort()));
 			}
 
 			break;
@@ -173,6 +173,9 @@ public class NFController {
 			controllerPeer.stopBackgroundFileServer();
 			serverOn = false;
 			commandSucceeded = controllerDir.unregisterFileServer();
+			if(commandSucceeded){
+				System.out.println("Servidor detenido correctamente.");
+			}
 			break;
 		case NFCommands.COM_DOWNLOADFROM:
 			/*
@@ -252,9 +255,10 @@ public class NFController {
 			break;
 		}
 		case NFCommands.COM_FGSERVE: {
-			if (currentState == LOGGED_OUT || serverOn==true) {
+			if (currentState == LOGGED_OUT || serverOn == true) {
 				commandAllowed = false;
-				System.err.println("* You cannot start a fgserver because you are not logged into the directory or you are a server.");
+				System.err.println(
+						"* You cannot start a fgserver because you are not logged into the directory or you are a server.");
 			}
 			break;
 		}
@@ -287,7 +291,6 @@ public class NFController {
 			}
 			break;
 		}
-
 
 		default:
 			// System.err.println("ERROR: undefined behaviour for " + currentCommand + "

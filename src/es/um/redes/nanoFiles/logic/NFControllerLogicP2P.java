@@ -25,7 +25,7 @@ public class NFControllerLogicP2P {
 	protected void foregroundServeFiles(NFControllerLogicDir controllerDir) {
 
 			NFServerSimple simple = new NFServerSimple();
-			controllerDir.registerFileServer(""+simple.getPort()); //aviso al directorio del puerto de escucha
+			controllerDir.registerFileServer(Integer.toString(simple.getPort())); //aviso al directorio del puerto de escucha
 			simple.run();
 			
 
@@ -120,7 +120,7 @@ public class NFControllerLogicP2P {
 			return false;
 		}
 		/*
-		 * TODO: Crear un objeto NFConnector para establecer la conexión con cada
+		 * Crear un objeto NFConnector para establecer la conexión con cada
 		 * servidor de ficheros, y usarlo para descargar un trozo (chunk) del fichero
 		 * mediante su método "downloadFileChunk". Se debe comprobar previamente si ya
 		 * existe un fichero con el mismo nombre en esta máquina, en cuyo caso se
@@ -128,7 +128,7 @@ public class NFControllerLogicP2P {
 		 * informando de que se ha completado la descarga.
 		 */
 		/*
-		 * TODO: Las excepciones que puedan lanzarse deben ser capturadas y tratadas en
+		 *  Las excepciones que puedan lanzarse deben ser capturadas y tratadas en
 		 * este método. Si se produce una excepción de entrada/salida (error del que no
 		 * es posible recuperarse), se debe informar sin abortar el programa
 		 */
@@ -163,11 +163,10 @@ public class NFControllerLogicP2P {
 	 */
 	public void stopBackgroundFileServer() {
 		/*
-		 * TODO: Enviar señal para detener nuestro servidor de ficheros en segundo plano
+		 *  Enviar señal para detener nuestro servidor de ficheros en segundo plano
 		 */
 		this.bgserver.stopServer();
 		this.bgserver=null;
-		System.out.println("Servidor detenido correctamente.");
 
 	}
 

@@ -312,10 +312,14 @@ public class NFDirectoryServer {
 			int key = msg.getSession_key();
 			this.sessionHostnames.remove(key);
 			LinkedList<FileInfo> files = this.sessionFiles.get(key);
+			if(files!=null) {
+			//solo hace este proceso si el servidor tiene ficheros publicados
 			for (FileInfo file : files) {
 				boolean repeated = false;
 				for (LinkedList<FileInfo> checkFiles : this.sessionFiles.values()) {
 					if (checkFiles.equals(files)) {
+						//si la lista es la misma que la asignada a esa sesion key continua con 
+						//otra iteracion
 						continue;
 					}
 					for (FileInfo f : checkFiles) {
@@ -327,7 +331,9 @@ public class NFDirectoryServer {
 				}
 				if (!repeated)
 					this.files.remove(file);
+					file.removeNamePath(this.sessionKeys.get(key));
 
+			}
 			}
 			this.sessionFiles.remove(key);
 
@@ -368,7 +374,7 @@ public class NFDirectoryServer {
 			while (it.hasNext()) {
 				FileInfo f = it.next();
 				if (f.fileHash.equals(file.fileHash)) {
-					file.filePath = f.filePath + "DELIMITER" + username;
+					file.filePath = f.filePath + DELIMITER + username;
 					it.remove();
 				}
 			}

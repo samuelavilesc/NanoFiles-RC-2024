@@ -49,7 +49,7 @@ public class NFServerSimple {
 	public void run() {
 		while(true) {
 		/*
-		 * TODO: Comprobar que el socket servidor está creado y ligado
+		 * 
 		 */
 		if(serverSocket!=null&&!serverSocket.isClosed()) {
 			try {
