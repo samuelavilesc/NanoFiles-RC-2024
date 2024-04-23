@@ -15,7 +15,7 @@ import es.um.redes.nanoFiles.tcp.message.PeerMessageOps;
 import es.um.redes.nanoFiles.util.FileInfo;
 
 public class NFServerComm {
-	private final static byte HASH_MAX_LENGTH = 20;
+	private final static byte HASH_MAX_LENGTH = 40;
 
 	public static void serveFilesToClient(Socket socket) {
 		try {
