@@ -10,7 +10,7 @@ import java.net.Socket;
  * {@link NFServerThread} cada vez que se conecte un cliente.
  */
 public class NFServer extends Thread {
-
+	private static final int SERVERSOCKET_ACCEPT_TIMEOUT_MILISECS = 1000;
 	private ServerSocket serverSocket = null;
 	private boolean stopServer = false;
 
@@ -19,7 +19,7 @@ public class NFServer extends Thread {
 		 * Crear un socket servidor y ligarlo a cualquier puerto disponible
 		 */
 		this.serverSocket = new ServerSocket(0); // 0 para cualqueir puerto disponible
-		//this.serverSocket.setSoTimeout(SERVERSOCKET_ACCEPT_TIMEOUT_MILISECS);
+		this.serverSocket.setSoTimeout(SERVERSOCKET_ACCEPT_TIMEOUT_MILISECS);
 
 	}
 	public int getServerPort() {
@@ -49,7 +49,7 @@ public class NFServer extends Thread {
 					NFServerThread thread = new NFServerThread(conn);
 					thread.start();
 				} catch (IOException e) {
-					e.printStackTrace();
+					continue;
 				}
 			}
 
