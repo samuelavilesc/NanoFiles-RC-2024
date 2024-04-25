@@ -270,8 +270,7 @@ public class NFControllerLogicDir {
 	 */
 	public boolean unregisterFileServer() {
 
-		boolean result = false;
-		this.directoryConnector.unregisterServerPort();
+		boolean result = this.directoryConnector.unregisterServerPort();
 
 		return result;
 	}
