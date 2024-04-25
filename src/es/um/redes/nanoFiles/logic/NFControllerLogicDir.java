@@ -9,7 +9,7 @@ import es.um.redes.nanoFiles.udp.client.DirectoryConnector;
 import es.um.redes.nanoFiles.util.FileInfo;
 
 public class NFControllerLogicDir {
-	private final static String DELIMITER=":";
+	private final static String DELIMITER = ":";
 	// Conector para enviar y recibir mensajes del directorio
 	private DirectoryConnector directoryConnector;
 
@@ -70,7 +70,7 @@ public class NFControllerLogicDir {
 			System.out.println("Bienvenido, " + nickname);
 			System.out.println("Id de sesión: " + this.directoryConnector.getSessionKey());
 		} else {
-			this.directoryConnector=null;
+			this.directoryConnector = null;
 			System.err.println("Inicio de sesión fallido.");
 		}
 		return result;
@@ -83,12 +83,9 @@ public class NFControllerLogicDir {
 	public boolean doLogout() {
 
 		boolean result = false;
-		if (this.directoryConnector != null) {
-			result = this.directoryConnector.logoutFromDirectory();
-			this.directoryConnector=null;
-			System.out.println("Sesión cerrada correctamente.");
-		} else {
-			System.err.println("No puedes cerrar sesión antes de abrirla.");
+		result = this.directoryConnector.logoutFromDirectory();
+		if (result) {
+			this.directoryConnector = null;
 		}
 
 		return result;
@@ -100,23 +97,12 @@ public class NFControllerLogicDir {
 	protected boolean getAndPrintUserList() {
 
 		boolean result = false;
-		if(this.directoryConnector!=null) {
-			String[] userList = this.directoryConnector.getUserList();
-			if(userList.length!=0) {
-				result=true;
-				System.out.println("Lista de usuarios activos: ");
-				for(String user: userList) {
-					System.out.println(user);
-				}
-			}else {
-				System.err.println("No existen usuarios activos en este momento.");
-			}
-			
-		} else {
-			System.err.println("No puedes consultar la lista de usuarios sin iniciar sesion.");
+		String[] userList = this.directoryConnector.getUserList();
+		result = true;
+		System.out.println("Lista de usuarios activos: ");
+		for (String user : userList) {
+			System.out.println(user);
 		}
-
-			
 		return result;
 	}
 
@@ -128,11 +114,11 @@ public class NFControllerLogicDir {
 
 		boolean result = false;
 		FileInfo[] files = this.directoryConnector.getFileList();
-		if(files.length!=0) {
+		if (files.length != 0) {
 			FileInfo.printToSysoutWithPath(files);
-			result=true;
+			result = true;
 		}
-		
+
 		return result;
 	}
 
@@ -159,15 +145,10 @@ public class NFControllerLogicDir {
 	protected boolean publishLocalFiles() {
 
 		boolean result = false;
-		result=this.directoryConnector.publishLocalFiles(NanoFiles.db.getFiles());
-		if(result==true) {
-			System.out.println("Ficheros publicados con éxito.");
-		}else {
-			System.err.println("Hubo algun problema publicando los ficheros.");
-		}
+		result = this.directoryConnector.publishLocalFiles(NanoFiles.db.getFiles());
 		return result;
 	}
-	
+
 	/**
 	 * Método para consultar al directorio el nick de un peer servidor y obtener
 	 * como respuesta la dirección de socket IP:puerto asociada a dicho servidor
@@ -198,9 +179,9 @@ public class NFControllerLogicDir {
 	public InetSocketAddress getServerAddress(String serverNicknameOrSocketAddr) {
 		InetSocketAddress fserverAddr = null;
 		/*
-		 *  Averiguar si el nickname es en realidad una cadena "IP:puerto", en cuyo
-		 * caso no es necesario comunicarse con el directorio (simplemente se devuelve
-		 * un InetSocketAddress); en otro caso, utilizar el método
+		 * Averiguar si el nickname es en realidad una cadena "IP:puerto", en cuyo caso
+		 * no es necesario comunicarse con el directorio (simplemente se devuelve un
+		 * InetSocketAddress); en otro caso, utilizar el método
 		 * lookupServerAddrByUsername de esta clase para comunicarse con el directorio y
 		 * obtener la IP:puerto del servidor con dicho nickname. Devolver null si la
 		 * operación fracasa.
@@ -209,7 +190,7 @@ public class NFControllerLogicDir {
 		if (serverNicknameOrSocketAddr.contains(":")) { // Then it has to be a socket address (IP:port)
 			String[] str = serverNicknameOrSocketAddr.split(DELIMITER);
 			fserverAddr = new InetSocketAddress(str[0], Integer.parseInt(str[1]));
-			/* 
+			/*
 			 * : Extraer la dirección IP y el puerto de la cadena y devolver un
 			 * InetSocketAddress. Para convertir un string con la IP a un objeto InetAddress
 			 * se debe usar InetAddress.getByName()
@@ -217,8 +198,8 @@ public class NFControllerLogicDir {
 
 		} else {
 			/*
-			 * : Si es un nickname, preguntar al directorio la IP:puerto asociada a
-			 * dicho peer servidor.
+			 * : Si es un nickname, preguntar al directorio la IP:puerto asociada a dicho
+			 * peer servidor.
 			 */
 			fserverAddr = lookupServerAddrByUsername(serverNicknameOrSocketAddr);
 		}
@@ -235,10 +216,10 @@ public class NFControllerLogicDir {
 	public boolean getAndPrintServersNicknamesSharingThisFile(String fileHashSubstring) {
 
 		boolean result = false;
-		String[] nicks =this.directoryConnector.getServerNicknamesSharingThisFile(fileHashSubstring);
-		if(nicks!=null) {
+		String[] nicks = this.directoryConnector.getServerNicknamesSharingThisFile(fileHashSubstring);
+		if (nicks != null) {
 			System.out.println("Servidores encontrados que tienen disponible el fichero:");
-			for(String nick : nicks) {
+			for (String nick : nicks) {
 				System.out.println(nick);
 			}
 		}
@@ -258,7 +239,6 @@ public class NFControllerLogicDir {
 	 */
 	public LinkedList<InetSocketAddress> getServerAddressesSharingThisFile(String downloadTargetFileHash) {
 		LinkedList<InetSocketAddress> serverAddressList = null;
-
 
 		return serverAddressList;
 	}

@@ -47,7 +47,7 @@ public class NFControllerLogicP2P {
 			try {
 				this.bgserver= new NFServer();
 				bgserver.start();
-				if(bgserver.getServerPort()>0) {
+				if(bgserver.getServerPort()>0) { //<0 dado que devuelve -1 si el socket ha expirado
 					System.out.println("Servidor iniciado correctamente, puerto: "+bgserver.getServerPort());
 					success=true;
 				}

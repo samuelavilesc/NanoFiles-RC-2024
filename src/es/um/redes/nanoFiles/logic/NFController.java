@@ -114,6 +114,9 @@ public class NFController {
 				serverOn=false;
 			}
 			commandSucceeded = controllerDir.doLogout();
+			if(commandSucceeded) {
+				System.out.println("Sesión cerrada correctamente.");
+			}
 			break;
 		case NFCommands.COM_USERLIST:
 			/*
@@ -147,6 +150,11 @@ public class NFController {
 			 * (método publishLocalFiles)
 			 */
 			commandSucceeded = controllerDir.publishLocalFiles();
+			if(commandSucceeded) {
+				System.out.println("Ficheros publicados con éxito.");
+			} else {
+				System.err.println("Hubo algun problema publicando los ficheros.");
+			}
 			break;
 		case NFCommands.COM_BGSERVE:
 			/*
