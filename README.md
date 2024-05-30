@@ -6,7 +6,6 @@
 
 **Gloria Sánchez Alonso**
 
-![](./images/image1.png)
 
 
 ## 1.Introducción. 
