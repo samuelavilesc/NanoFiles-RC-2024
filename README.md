@@ -6,44 +6,10 @@
 
 **Gloria Sánchez Alonso**
 
-![](./images/image1.png){width="3.7152777777777777in" height="3.66875in"}
+![](./images/image1.png)
 
-[1.Introducción. 3](#introducción.)
 
-[2. Formato de los mensajes del protocolo de comunicación con el
-Directorio
-3](#formato-de-los-mensajes-del-protocolo-de-comunicación-con-el-directorio)
-
-[3. Formato de los mensajes del protocolo de transferencia de ficheros
-9](#formato-de-los-mensajes-del-protocolo-de-transferencia-de-ficheros)
-
-[3.1 Formatos de mensajes 9](#formatos-de-mensajes)
-
-[3.2 Tipos y descripción de los mensajes
-10](#tipos-y-descripción-de-los-mensajes)
-
-[4. Autómatas de protocolo 11](#autómatas-de-protocolo)
-
-[4.1 Autómata rol cliente de directorio
-11](#autómata-rol-cliente-de-directorio)
-
-[4.2 Autómata rol servidor de directorio
-12](#autómata-rol-servidor-de-directorio)
-
-[4.3 Autómata rol cliente de ficheros
-13](#autómata-rol-cliente-de-ficheros)
-
-[4.4 Autómata rol servidor de ficheros
-14](#autómata-rol-servidor-de-ficheros)
-
-[5. Mejoras implementadas 15](#mejoras-implementadas)
-
-[6. Ejemplo de intercambio de mensajes
-16](#ejemplo-de-intercambio-de-mensajes)
-
-[7. Conclusiones 17](#conclusiones)
-
-## 1.Introducción. {#introducción. .unnumbered}
+## 1.Introducción. 
 
 En este documento se especifica el diseño del proyecto NanoFiles,
 abarcando así la especificación de los protocolos de comunicación,
@@ -61,20 +27,16 @@ destacar que ambos tipos de mensajes se envían con diferentes formatos
 comunicando así de la mejor manera posible según el tipo de operación
 realizada.
 
-##  {#section .unnumbered}
 
-##  {#section-1 .unnumbered}
 
-##  {#section-2 .unnumbered}
-
-## 2. Formato de los mensajes del protocolo de comunicación con el Directorio {#formato-de-los-mensajes-del-protocolo-de-comunicación-con-el-directorio .unnumbered}
+## 2. Formato de los mensajes del protocolo de comunicación con el Directorio 
 
 Para definir el protocolo de comunicación con el *Directorio*, vamos a
 utilizar mensajes textuales con formato "campo:valor". El valor que tome
 el campo "operation" (código de operación) indicará el tipo de mensaje y
 por tanto su formato (qué campos vienen a continuación).
 
-> **[Tipos y descripción de los mensajes]{.underline}**
+> **[Tipos y descripción de los mensajes]**
 
 Mensaje: **login**
 
@@ -432,16 +394,16 @@ operation: getip_failed\\n
 
 \\n
 
-## 3. Formato de los mensajes del protocolo de transferencia de ficheros {#formato-de-los-mensajes-del-protocolo-de-transferencia-de-ficheros .unnumbered}
+## 3. Formato de los mensajes del protocolo de transferencia de ficheros 
 
 Para definir el protocolo de comunicación con un servidor de ficheros,
 vamos a utilizar mensajes binarios multiformato. El valor que tome el
 campo "opcode" (código de operación) indicará el tipo de mensaje y por
 tanto cuál es su formato, es decir, qué campos vienen a continuación.
 
-###  {#section-3 .unnumbered}
 
-### 3.1 Formatos de mensajes {#formatos-de-mensajes .unnumbered}
+### 3.1 Formatos de mensajes 
+**Para una correcta visualización del formato de mensajes, es preferible leer el codigo fuente del fichero readme.md**
 
 **Formato: Control**
 
@@ -467,7 +429,7 @@ tanto cuál es su formato, es decir, qué campos vienen a continuación.
   **1 byte**             **1/2/4/8 bytes**        **n bytes**
   ---------------------- ------------------------ -----------------------
 
-### 3.2 Tipos y descripción de los mensajes {#tipos-y-descripción-de-los-mensajes .unnumbered}
+### 3.2 Tipos y descripción de los mensajes
 
 Mensaje: **FileNotFound (opcode = 4)**
 
@@ -487,13 +449,13 @@ Ejemplo:
 | **4**                                                                 |
 +-----------------------------------------------------------------------+
 
-[Mensaje]{.underline}: **downloadFile** (OPCODE = 1)
+[Mensaje]: **downloadFile** (OPCODE = 1)
 
-[Formato]{.underline}: Operación
+[Formato]: Operación
 
-[Sentido de la comunicación:]{.underline} Cliente→ Servidor de ficheros
+[Sentido de la comunicación]: Cliente→ Servidor de ficheros
 
-[Descripción]{.underline}:
+[Descripción]:
 
 Este mensaje lo envía el cliente de NanoFiles al Servidor de ficheros
 para solicitar
@@ -510,13 +472,13 @@ OPCODE es 1.
 | **1**                | **x**                 | **xxxxxx\...**       |
 +----------------------+-----------------------+----------------------+
 
-[Mensaje]{.underline}: **sendFile** (OPCODE = 2)
+[Mensaje]: **sendFile** (OPCODE = 2)
 
-[Formato]{.underline}: TLV
+[Formato]: TLV
 
-[Sentido de la comunicación:]{.underline} Servidor de ficheros → Cliente
+[Sentido de la comunicación]: Servidor de ficheros → Cliente
 
-[Descripción]{.underline}:
+[Descripción]:
 
 Este mensaje lo envía el servidor de ficheros al cliente para devolverle
 el fichero solicitado. El valor asignado al OPCODE es 2. La longitud es
@@ -532,13 +494,13 @@ campo longitud.
 | **2**                | **xxxxxxxx**           | **xxxx\...**         |
 +----------------------+------------------------+----------------------+
 
-[Mensaje]{.underline}: **serveHash**(OPCODE = 3)
+[Mensaje]: **serveHash**(OPCODE = 3)
 
-[Formato]{.underline}: TLV
+[Formato]: TLV
 
-[Sentido de la comunicación:]{.underline} Servidor de ficheros → Cliente
+[Sentido de la comunicación]: Servidor de ficheros → Cliente
 
-[Descripción]{.underline}:
+[Descripción]:
 
 Este mensaje lo envía el servidor de ficheros al cliente para entregar
 el hash completo del fiichero solicitado para que el cliente pueda
@@ -554,7 +516,7 @@ El tamaño de este último campo viene delimitado por el campo longitud.
 | **3**                | **x**                  | **xxxx\...**         |
 +----------------------+------------------------+----------------------+
 
-## 4. Autómatas de protocolo {#autómatas-de-protocolo .unnumbered}
+## 4. Autómatas de protocolo 
 
 Con respecto a los autómatas, hemos considerado las siguientes
 restricciones:
@@ -565,37 +527,27 @@ restricciones:
 -   Un cliente del directorio no puede hacer nada más tras ejecutar el
     comando fgserver.
 
-### 4.1 Autómata rol cliente de directorio {#autómata-rol-cliente-de-directorio .unnumbered}
+### 4.1 Autómata rol cliente de directorio 
 
-![](./images/image2.png){width="6.149305555555555in"
-height="4.291666666666667in"}
+![](./images/image2.png)
 
-### 4.2 Autómata rol servidor de directorio {#autómata-rol-servidor-de-directorio .unnumbered}
+### 4.2 Autómata rol servidor de directorio 
 
-![](./images/image3.png){width="5.983333333333333in"
-height="5.197916666666667in"}
+![](./images/image3.png)
 
-###  {#section-4 .unnumbered}
+###  
 
-###  {#section-5 .unnumbered}
+###  
 
-###  {#section-6 .unnumbered}
+### 4.3 Autómata rol cliente de ficheros 
 
-###  {#section-7 .unnumbered}
+![](./images/image4.png)
 
-###  {#section-8 .unnumbered}
+### 4.4 Autómata rol servidor de ficheros 
 
-###  {#section-9 .unnumbered}
+![](./images/image5.png)
 
-### 4.3 Autómata rol cliente de ficheros {#autómata-rol-cliente-de-ficheros .unnumbered}
-
-![](./images/image4.png){width="5.75in" height="4.492361111111111in"}
-
-### 4.4 Autómata rol servidor de ficheros {#autómata-rol-servidor-de-ficheros .unnumbered}
-
-![](./images/image5.png){width="5.384722222222222in" height="4.2in"}
-
-## 5. Mejoras implementadas {#mejoras-implementadas .unnumbered}
+## 5. Mejoras implementadas 
 
 **-Comando fgserver con puerto variable: 0.5**
 
@@ -670,22 +622,22 @@ ficheros de las diferentes estructuras de datos. Además, cuando un
 usuario cierra sesión, si este tiene un servidor activo también lo da de
 baja para que se pueda realizar el mismo proceso.
 
-## 6. Ejemplo de intercambio de mensajes  {#ejemplo-de-intercambio-de-mensajes .unnumbered}
+## 6. Ejemplo de intercambio de mensajes  
 
 Ejemplo de login
 
-![](./images/image6.png){width="7.722916666666666in"
-height="0.7611111111111111in"}
+![](./images/image6.png)
 
 Ejemplo de downloadFrom (filtrando por el puerto de escucha del servidor
 TCP)
 
-![](./images/image7.png){width="6.6930555555555555in"
-height="2.5347222222222223in"}
+![](./images/image7.png)
 
 Ejemplo de filelist
 
-## ![](./images/image8.png){width="6.6930555555555555in" height="1.020138888888889in"}7. Conclusiones
+## ![](./images/image8.png)
+
+## 7. Conclusiones
 
 Este proyecto ha supuesto para nosotros un acercamiento al trabajo en el
 mundo real, enfrentandonos a un proyecto de mayor envergadura a lo que
